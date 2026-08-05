@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Solve & Explain with AI Button Handler
+  // Solve Button Handler
   if (btnSolve) {
     btnSolve.addEventListener('click', async () => {
       const formulaToSolve = latexEditorInput ? latexEditorInput.value.trim() : rawLatexOutput.textContent.trim();
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const backendUrl = backendUrlInput.value.trim().replace(/\/+$/, '');
       btnSolve.disabled = true;
-      btnSolve.innerHTML = `<span class="spinner"></span> Solving with AI...`;
+      btnSolve.innerHTML = `<span class="spinner"></span> Solving Formula...`;
 
       try {
         const response = await fetch(`${backendUrl}/api/solve`, {
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sympyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
 
-          showToast('Formula solved, plotted & explained!');
+          showToast('Formula solved successfully!');
         } else {
           showToast(data.error || 'Failed to solve formula.', true);
         }
@@ -409,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Error connecting to solver API.', true);
       } finally {
         btnSolve.disabled = false;
-        btnSolve.innerHTML = `<i class="fa-solid fa-brain"></i> Solve & Explain with AI`;
+        btnSolve.innerHTML = `<i class="fa-solid fa-bolt"></i> Solve`;
       }
     });
   }

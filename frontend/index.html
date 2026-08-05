@@ -175,13 +175,17 @@
             <textarea id="latex-editor-input" class="textarea-custom" rows="2" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--accent-cyan); font-family: var(--font-mono); padding: 0.6rem; font-size: 0.9rem; resize: vertical;" placeholder="Edit formula LaTeX code here..."></textarea>
           </div>
 
-          <!-- Action Buttons Flex -->
-          <div class="action-buttons-flex" style="display: flex; gap: 0.75rem; margin-top: 1rem;">
-            <button class="btn-copy" id="btn-copy" style="flex: 1;">
+          <!-- Copy Button Row -->
+          <div class="action-buttons-flex" style="margin-top: 1rem;">
+            <button class="btn-copy" id="btn-copy" style="width: 100%;">
               <i class="fa-regular fa-copy"></i> Copy LaTeX
             </button>
-            <button class="btn-solve" id="btn-solve" style="flex: 2; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 0.65rem 1rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
-              <i class="fa-solid fa-brain"></i> Solve & Explain with AI
+          </div>
+
+          <!-- Dedicated New Row Below Everything for Solve Button -->
+          <div class="solve-button-row" style="margin-top: 1rem;">
+            <button class="btn-solve" id="btn-solve" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 0.75rem 1.25rem; border-radius: var(--radius-md); font-weight: 700; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35);">
+              <i class="fa-solid fa-bolt"></i> Solve
             </button>
           </div>
 
