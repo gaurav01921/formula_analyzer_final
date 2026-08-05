@@ -48,3 +48,4 @@ notebooks/
 
 # Training history
 training_history.csv
+confusion_matrix.csv
