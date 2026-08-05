@@ -15,7 +15,7 @@ This guide walks you through setting up and running your **Handwritten Mathemati
 
 2. Run the FastAPI backend server using `uvicorn`:
    ```bash
-   uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+   uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
    ```
 
 3. Confirm that the server starts up cleanly and prints:
@@ -86,7 +86,7 @@ The `frontend/` folder contains a clean static web app equipped with `vercel.jso
 
 ```text
 handwrittenformulaanalyzer/
-├── app.py                  # FastAPI server with CORS & prediction REST APIs
+├── app/main.py             # FastAPI server with CORS & prediction REST APIs
 ├── predict.py              # ModelPredictor singleton inference engine
 ├── model.py                # Encoder-Decoder PyTorch neural network model
 ├── utils.py                # Preprocessing & decoding algorithms

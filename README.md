@@ -25,7 +25,7 @@ This app is built around three main layers:
    - Saves uploaded files under `static/uploads/` for convenient preview.
 
 2. **Backend API**
-   - `app.py` runs FastAPI and exposes routes like `/` and `/predict`.
+   - `app/main.py` runs FastAPI and exposes routes like `/` and `/predict`.
    - It mounts static files, renders templates, validates image uploads, and returns JSON results.
    - The backend initializes the model once on startup so inference stays fast.
 
@@ -99,7 +99,7 @@ The app is designed around these tasks:
 ```
 
 - **Startup**
-  - `app.py` initializes FastAPI and loads the model once using `init_predictor()`.
+  - `app/main.py` initializes FastAPI and loads the model once using `init_predictor()`.
   - The vocabulary and weights are loaded into CPU/GPU memory.
 
 - **Upload & Validation**
@@ -126,28 +126,38 @@ The app is designed around these tasks:
 ```text
 handwrittenformulaanalyzer/
 │
-├── app.py              # FastAPI application and API routes
-├── predict.py          # Singleton predictor and inference wrappers
-├── model.py            # Encoder/Decoder architecture and vocabulary loader
-├── utils.py            # Preprocessing, line segmentation, and decoding helpers
-├── requirements.txt    # Python dependency list
-├── README.md           # Project documentation
-│
+├── app/
+│   ├── api/
+│   │   └── routes.py              # FastAPI route definitions and app endpoint logic
+│   ├── models/
+│   │   ├── model.py               # Encoder/Decoder architecture and vocabulary loader
+│   │   ├── predict.py             # Singleton predictor and inference wrappers
+│   │   └── solver.py              # SymPy solver, plotting, and Gemini explanation logic
+│   ├── preprocessing/
+│   │   ├── image_processing.py    # Image preprocessing / tensor conversion
+│   │   └── segmentation.py        # OpenCV formula line segmentation
+│   ├── utils/
+│   │   └── utils.py               # Greedy/beam search and decoder utilities
+│   ├── static/
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── uploads/
+│   ├── templates/
+│   └── main.py                    # FastAPI entrypoint
+├── notebooks/
+│   ├── train.ipynb
+│   └── predict.ipynb
 ├── weights/
-│   ├── best_model.pth  # Pretrained PyTorch model checkpoint
-│   └── vocab.pkl       # Serialized vocabulary object
-│
-├── static/
-│   ├── css/
-│   │   └── style.css   # Styling for the app UI
-│   ├── js/
-│   │   └── script.js   # Client upload logic, API calls, and MathJax rendering
-│   └── uploads/        # Saved prediction input images
-│
-└── templates/
-    ├── index.html      # Main interface template
-    └── result.html     # Result display template
-```
+│   ├── best_model.pth
+│   └── vocab.pkl
+├── dataset/
+├── checkpoints/
+├── frontend/
+├── requirements.txt
+├── README.md
+├── DEPLOYMENT_GUIDE.md
+├── .gitignore
+``` 
 
 ---
 
@@ -167,16 +177,10 @@ pip install -r requirements.txt
 
 ## 🚀 Run Locally
 
-Start the app:
+Start the app using Uvicorn directly:
 
 ```bash
-python app.py
-```
-
-Or with Uvicorn:
-
-```bash
-uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Then open:

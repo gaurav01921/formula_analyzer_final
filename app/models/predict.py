@@ -5,15 +5,14 @@
 # ==========================================================\n
 import os
 import torch
-from model import FormulaRecognizer, load_vocab_file
-from utils import (
-    preprocess_image, 
-    greedy_decode, 
-    beam_search_decode, 
-    segment_formula_lines,
+from app.models.model import FormulaRecognizer, load_vocab_file
+from app.preprocessing.image_processing import (
+    preprocess_image,
     image_to_base64,
-    create_otsu_visualization
+    create_otsu_visualization,
 )
+from app.preprocessing.segmentation import segment_formula_lines
+from app.utils.utils import greedy_decode, beam_search_decode
 
 # Global Singleton Predictor Instance
 _PREDICTOR_INSTANCE = None
@@ -53,7 +52,7 @@ class ModelPredictor:
 
         # Support checkpoint unpickling where Vocabulary was saved under __main__
         import sys
-        from model import Vocabulary
+        from app.models.model import Vocabulary
         sys.modules['__main__'].Vocabulary = Vocabulary
 
         checkpoint = torch.load(model_path, map_location=self.device, weights_only=False)
