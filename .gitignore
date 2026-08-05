@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# Dataset
+dataset/
+
+# Training checkpoints
+checkpoints/
+
+# Notebook cache
+.ipynb_checkpoints/
+
+# Uploads
+static/uploads/
+
+# Build
+.dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
