@@ -296,8 +296,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements for Editor & AI Solver
   const latexEditorInput = document.getElementById('latex-editor-input');
   const btnSolve = document.getElementById('btn-solve');
-  const solutionCard = document.getElementById('solution-card');
-  const solutionRenderBox = document.getElementById('solution-render-box');
+  const sympyCard = document.getElementById('sympy-card');
+  const sympyRenderBox = document.getElementById('sympy-render-box');
+  const plotCard = document.getElementById('plot-card');
+  const plotImg = document.getElementById('plot-img');
+  const geminiCard = document.getElementById('gemini-card');
   const explanationContent = document.getElementById('explanation-content');
 
   // Render Formula Output via KaTeX
@@ -365,31 +368,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          // 1. Render SymPy Solved KaTeX
-          if (window.katex && data.solution_latex) {
-            solutionRenderBox.innerHTML = '';
-            katex.render(data.solution_latex, solutionRenderBox, {
-              displayMode: true,
-              throwOnError: false
-            });
-          } else {
-            solutionRenderBox.textContent = data.solution_latex || formulaToSolve;
+          // 1. SymPy Mathematical Solution Card
+          if (sympyCard && sympyRenderBox) {
+            if (window.katex && data.solution_latex) {
+              sympyRenderBox.innerHTML = '';
+              katex.render(data.solution_latex, sympyRenderBox, {
+                displayMode: true,
+                throwOnError: false
+              });
+            } else {
+              sympyRenderBox.textContent = data.solution_latex || formulaToSolve;
+            }
+            sympyCard.style.display = 'block';
           }
 
-          // 2. Render Matplotlib Function Plot
-          const plotBox = document.getElementById('plot-box');
-          const plotImg = document.getElementById('plot-img');
-          if (plotBox && plotImg && data.plot_image_base64) {
+          // 2. Matplotlib Function Graph Plot Card
+          if (plotCard && plotImg && data.plot_image_base64) {
             plotImg.src = data.plot_image_base64;
-            plotBox.style.display = 'block';
-          } else if (plotBox) {
-            plotBox.style.display = 'none';
+            plotCard.style.display = 'block';
+          } else if (plotCard) {
+            plotCard.style.display = 'none';
           }
 
-          // 3. Format Gemini AI Explanation
-          explanationContent.innerHTML = formatMarkdown(data.explanation || 'Solution calculated.');
-          solutionCard.style.display = 'block';
-          solutionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // 3. Gemini AI Concept Breakdown Card
+          if (geminiCard && explanationContent) {
+            explanationContent.innerHTML = formatMarkdown(data.explanation || 'Solution calculated.');
+            geminiCard.style.display = 'block';
+          }
+
+          if (sympyCard) {
+            sympyCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+
           showToast('Formula solved, plotted & explained!');
         } else {
           showToast(data.error || 'Failed to solve formula.', true);

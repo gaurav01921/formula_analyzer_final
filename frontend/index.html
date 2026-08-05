@@ -224,46 +224,59 @@
       </div>
     </section>
 
-    <!-- Step 3: Solution, Matplotlib Plot & Gemini AI Explanation Card Section -->
-    <section class="card solution-card" id="solution-card" style="display: none; margin-top: 2rem;">
+    <!-- Section 1: SymPy Mathematical Solution Card -->
+    <section class="card solution-card" id="sympy-card" style="display: none; margin-top: 2rem;">
       <div class="pipeline-header">
         <h3 class="card-title" style="margin-bottom: 0;">
-          🧠 Step 3: SymPy Solution, Matplotlib Plot & Gemini AI Explanation
+          ⚡ SymPy Mathematical Solution
         </h3>
-        <span class="badge-active" style="background: rgba(99, 102, 241, 0.15); border-color: var(--primary); color: #a5b4fc;">
-          <i class="fa-solid fa-sparkles"></i> SymPy + Matplotlib + Gemini AI
+        <span class="badge-active" style="background: rgba(16, 185, 129, 0.15); border-color: var(--accent-emerald); color: var(--accent-emerald);">
+          <i class="fa-solid fa-calculator"></i> SymPy Symbolic Engine
         </span>
       </div>
 
-      <div class="solution-grid" style="display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 1.25rem;">
-        <!-- 1. SymPy Symbolic Solution Box -->
-        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
-          <h4 class="pipeline-box-title" style="color: var(--accent-emerald);">
-            <i class="fa-solid fa-calculator"></i> SymPy Exact Mathematical Solution
-          </h4>
-          <div class="rendered-math-box" id="solution-render-box" style="margin-top: 0.75rem;">
-            <!-- Solved KaTeX math renders here -->
-          </div>
+      <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+        <h4 class="pipeline-box-title" style="color: var(--accent-emerald);">Calculated Exact Symbolic Solution</h4>
+        <div class="rendered-math-box" id="sympy-render-box" style="margin-top: 0.75rem;">
+          <!-- Solved KaTeX math renders here -->
         </div>
+      </div>
+    </section>
 
-        <!-- 2. Matplotlib Graph Plot Box -->
-        <div class="solution-box" id="plot-box" style="display: none; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
-          <h4 class="pipeline-box-title" style="color: var(--accent-cyan);">
-            <i class="fa-solid fa-chart-line"></i> Matplotlib Function Graph & Curve Visualization
-          </h4>
-          <div class="plot-img-wrap" style="margin-top: 0.75rem; background: #0f172a; border-radius: var(--radius-sm); padding: 0.5rem; text-align: center;">
-            <img id="plot-img" src="" alt="Matplotlib Function Plot" style="max-width: 100%; border-radius: var(--radius-sm);">
-          </div>
+    <!-- Section 2: Matplotlib Function Graph Plot Card -->
+    <section class="card solution-card" id="plot-card" style="display: none; margin-top: 2rem;">
+      <div class="pipeline-header">
+        <h3 class="card-title" style="margin-bottom: 0;">
+          📈 Matplotlib Function Graph & Visualization
+        </h3>
+        <span class="badge-active" style="background: rgba(56, 189, 248, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);">
+          <i class="fa-solid fa-chart-line"></i> Matplotlib Dark-Mode Engine
+        </span>
+      </div>
+
+      <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+        <h4 class="pipeline-box-title" style="color: var(--accent-cyan);">Function Curve Plot</h4>
+        <div class="plot-img-wrap" style="margin-top: 0.75rem; background: #0f172a; border-radius: var(--radius-sm); padding: 0.5rem; text-align: center;">
+          <img id="plot-img" src="" alt="Matplotlib Function Plot" style="max-width: 100%; border-radius: var(--radius-sm);">
         </div>
+      </div>
+    </section>
 
-        <!-- 3. Gemini AI Explanation Box -->
-        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
-          <h4 class="pipeline-box-title" style="color: #a5b4fc;">
-            <i class="fa-solid fa-brain"></i> Step-by-Step Gemini AI Concept Breakdown
-          </h4>
-          <div class="explanation-content" id="explanation-content" style="margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.7; color: var(--text-main);">
-            <!-- Markdown explanation renders here -->
-          </div>
+    <!-- Section 3: Gemini AI Concept Explanation Card -->
+    <section class="card solution-card" id="gemini-card" style="display: none; margin-top: 2rem;">
+      <div class="pipeline-header">
+        <h3 class="card-title" style="margin-bottom: 0;">
+          🧠 Gemini AI Concept Explanation & Breakdown
+        </h3>
+        <span class="badge-active" style="background: rgba(99, 102, 241, 0.15); border-color: var(--primary); color: #a5b4fc;">
+          <i class="fa-solid fa-sparkles"></i> Gemini AI Model Active
+        </span>
+      </div>
+
+      <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+        <h4 class="pipeline-box-title" style="color: #a5b4fc;">Step-by-Step Pedagogical Explanation</h4>
+        <div class="explanation-content" id="explanation-content" style="margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.7; color: var(--text-main);">
+          <!-- Markdown explanation renders here -->
         </div>
       </div>
     </section>

@@ -192,21 +192,42 @@ async def handle_prediction(
         )
 
 
-class SolveRequest(BaseModel):
-    formula: str
-    api_key: Optional[str] = None
+@app.options("/api/solve")
+async def solve_options():
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "*",
+        "ngrok-skip-browser-warning": "true"
+    }
+    return JSONResponse(status_code=200, headers=headers, content={"status": "ok"})
 
 
 @app.post("/api/solve")
-async def solve_formula_endpoint(request: SolveRequest):
+async def solve_formula_endpoint(request: Request):
     """Solves formula and generates Gemini AI step-by-step explanation."""
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "ngrok-skip-browser-warning": "true"
+    }
     try:
-        result = solve_and_explain(request.formula, api_key=request.api_key)
-        headers = {"ngrok-skip-browser-warning": "true"}
+        try:
+            body = await request.json()
+            formula = body.get("formula", "")
+            api_key = body.get("api_key", None)
+        except Exception:
+            form = await request.form()
+            formula = form.get("formula", "")
+            api_key = form.get("api_key", None)
+
+        if not formula:
+            return JSONResponse(status_code=400, headers=headers, content={"success": False, "error": "Formula is required."})
+
+        result = solve_and_explain(formula, api_key=api_key)
         return JSONResponse(status_code=200, headers=headers, content=result)
     except Exception as e:
         print(f"[ERROR] [/api/solve Error]: {str(e)}")
-        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+        return JSONResponse(status_code=500, headers=headers, content={"success": False, "error": str(e)})
 
 
 @app.get("/api/health")
