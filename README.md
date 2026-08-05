@@ -194,10 +194,17 @@ Ensure model weights exist in the `weights/` directory:
 Start the backend server on `http://127.0.0.1:8000`:
 
 ```bash
-python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Open your browser and navigate to `http://127.0.0.1:8000`.
+
+### Run backend:
+'''bash
+.\ngrok.exe http 8000
+'''
+
+copy: https://neon-retake-mouth.ngrok-free.dev
 
 ### 2. Test Formula Recognition
 
