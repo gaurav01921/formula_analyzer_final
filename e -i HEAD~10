@@ -1,0 +1,13 @@
+[33m69a33ce[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Add Top Navbar with About Project (SIC Presentation) and Recognition History tab pages
+[33m0e4b9d6[m Fix solver routes and add fail-safe client-side mathematical solver fallback
+[33m2cbfddc[m Update Solve button to dedicated row with Solve label
+[33m3eec618[m Create 3 distinct standalone section cards for SymPy Solution, Matplotlib Plot, and Gemini AI
+[33m5bb779c[m Separate SymPy math solver, Matplotlib function graph plotter, and Gemini AI explanation sections
+[33m85070e0[m Add interactive LaTeX formula editor, SymPy symbolic math solver, and Gemini AI step-by-step explanation card
+[33m7a98d8d[m Match Step 2 Image Pipeline & Preprocessing section layout exactly with user screenshot
+[33mdbe91a0[m Add animated stepper progress bar and real-time step transition pipeline
+[33me4cb4c7[m Add Step 2: Image Pipeline & Preprocessing visualization section and tensor metadata to UI
+[33mfbb2c7a[m Upgrade line segmenter with horizontal projection profiling and adaptive thresholding
+[33m5ff05f3[m Implement OpenCV multi-line formula segmentation and line-by-line prediction
+[33mf9b9aeb[m Configure gitignore, add Vercel frontend, FastAPI CORS backend, and deployment guides
+[33m24bd53a[m Initial commit
