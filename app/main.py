@@ -1,9 +1,3 @@
-# ==========================================================\n# Handwritten Mathematical Formula Recognition System
-# Module: app.py
-# Description: FastAPI Application Server providing REST APIs and Web Interface.
-# ==========================================================\n
-# ==========================================================
-
 import uuid
 import time
 from contextlib import asynccontextmanager

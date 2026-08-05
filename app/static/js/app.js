@@ -1,8 +1,3 @@
-/* ==========================================================
-   Handwritten Mathematical Formula Recognition System
-   Frontend Application Script (Vanilla JS)
-   ========================================================== */
-
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
   const backendUrlInput = document.getElementById('backend-url-input');
@@ -31,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let selectedFile = null;
 
-  // Initialize Backend URL (stored in localStorage or fallback to origin/local)
+  // Initialize Backend URL 
   const savedUrl = localStorage.getItem('formula_analyzer_backend_url') || getInitialBackendUrl();
   backendUrlInput.value = savedUrl;
   checkBackendHealth(savedUrl);
@@ -157,7 +152,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.btn-preset').forEach(btn => {
     btn.addEventListener('click', () => {
       const type = btn.getAttribute('data-preset');
-      // Draw simple mathematical text representation onto canvas as sample image
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, 512, 128);
       ctx.fillStyle = '#000000';
@@ -179,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Stepper & Animated Progress Bar Logic
+  // Progress Bar
   const progressFill = document.getElementById('progress-fill');
   const stepItems = [
     document.getElementById('step-1'),

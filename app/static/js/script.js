@@ -1,10 +1,3 @@
-/* ==========================================================
-   Handwritten Mathematical Formula Recognition System
-   File: static/js/script.js
-   Description: Client-side interaction logic for file uploads, drag-and-drop,
-                MathJax formula rendering, copy/download features, and theme toggle.
-   ========================================================== */
-
 document.addEventListener("DOMContentLoaded", function () {
   // UI Elements
   const dropzone = document.getElementById("dropzone");
@@ -36,10 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const themeIcon = document.getElementById("themeIcon");
 
   let selectedFile = null;
-
-  // ------------------------------------------------------------------
-  // 1. Theme Switcher Logic (Dark / Light)
-  // ------------------------------------------------------------------
   const currentTheme = localStorage.getItem("app_theme") || "dark";
   document.documentElement.setAttribute("data-bs-theme", currentTheme);
   updateThemeIcon(currentTheme);
@@ -63,18 +52,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ------------------------------------------------------------------
-  // 2. Beam Size Slider Update
-  // ------------------------------------------------------------------
   if (beamSizeRange && beamSizeVal) {
     beamSizeRange.addEventListener("input", function () {
       beamSizeVal.textContent = this.value;
     });
   }
 
-  // ------------------------------------------------------------------
-  // 3. Drag and Drop File Handlers
-  // ------------------------------------------------------------------
   if (dropzone) {
     dropzone.addEventListener("click", () => fileInput.click());
 
@@ -170,9 +153,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 
-  // ------------------------------------------------------------------
-  // 4. Submit & Prediction API Request
-  // ------------------------------------------------------------------
   if (predictBtn) {
     predictBtn.addEventListener("click", async function () {
       if (!selectedFile) {
@@ -238,9 +218,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, stepTime);
   }
 
-  // ------------------------------------------------------------------
-  // 5. Display & Render MathJax Results
-  // ------------------------------------------------------------------
   function displayResults(data) {
     resultImage.src = data.image_url;
     rawLatexCode.textContent = data.prediction;
@@ -261,9 +238,6 @@ document.addEventListener("DOMContentLoaded", function () {
     showToast("Formula recognized successfully!", "success");
   }
 
-  // ------------------------------------------------------------------
-  // 6. Copy & Download Action Buttons
-  // ------------------------------------------------------------------
   if (copyBtn) {
     copyBtn.addEventListener("click", function () {
       const textToCopy = rawLatexCode.textContent;
@@ -301,9 +275,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ------------------------------------------------------------------
-  // 7. Toast Notification System
-  // ------------------------------------------------------------------
   function showToast(message, type = "info") {
     const toastContainer = document.getElementById("toastContainer");
     if (!toastContainer) return;

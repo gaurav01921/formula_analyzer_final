@@ -1,7 +1,4 @@
-# ==========================================================\n# Handwritten Mathematical Formula Recognition System
-# Module: utils.py
-# Description: Preprocessing routines, image transforms, and search decoders (Greedy/Beam).
-# ==========================================================\n
+# Preprocessing routines, image transforms, and search decoders (Greedy/Beam).
 import io
 import base64
 import cv2
@@ -27,10 +24,6 @@ predict_transform = transforms.Compose([
 
 
 def resize_with_padding(image, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
-    """
-    Resizes image preserving original aspect ratio and pads the remaining background 
-    canvas with white (255, 255, 255).
-    """
     target_w, target_h = target_size
     w, h = image.size
 
@@ -48,10 +41,6 @@ def resize_with_padding(image, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
 
 
 def preprocess_image(image_input, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
-    """
-    Accepts an image input (file path, bytes, or PIL Image), preprocesses it, 
-    and returns both the normalized tensor batch and the processed PIL canvas.
-    """
     if isinstance(image_input, str):
         image = Image.open(image_input).convert("RGB")
     elif isinstance(image_input, bytes):
@@ -67,7 +56,6 @@ def preprocess_image(image_input, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
 
 
 def image_to_base64(pil_img):
-    """Converts a PIL Image to a base64 data URL string."""
     buffered = io.BytesIO()
     pil_img.save(buffered, format="PNG")
     img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
@@ -75,7 +63,6 @@ def image_to_base64(pil_img):
 
 
 def create_otsu_visualization(pil_img):
-    """Generates an inverted/Otsu binarized visualization canvas of the input tensor image."""
     img_np = np.array(pil_img)
     gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
     _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
@@ -84,14 +71,6 @@ def create_otsu_visualization(pil_img):
 
 
 def segment_formula_lines(image_input, padding=12, min_line_height=18):
-    """
-    OpenCV Line Segmenter using Horizontal Projection Profiling.
-    Detects horizontal ink density peaks to split multi-line handwritten formulas accurately,
-    even on lined notebook paper.
-    
-    Returns:
-        list of PIL.Image: Cropped line sub-images ordered from top to bottom.
-    """
     if isinstance(image_input, str):
         pil_img = Image.open(image_input).convert("RGB")
     elif isinstance(image_input, bytes):
@@ -108,13 +87,13 @@ def segment_formula_lines(image_input, padding=12, min_line_height=18):
     # 1. Smooth slightly to reduce noise
     blurred = cv2.GaussianBlur(gray, (5, 5), 0)
     
-    # 2. Adaptive Gaussian thresholding to separate dark ink from background notebook lines
+    # 2. Adaptive Gaussian thresholding 
     thresh = cv2.adaptiveThreshold(
         blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
         cv2.THRESH_BINARY_INV, 21, 10
     )
 
-    # 3. Horizontal Projection Profile (sum ink intensity per row)
+    # 3. Horizontal Projection Profile 
     row_sums = np.sum(thresh, axis=1)
     max_row = np.max(row_sums)
     
@@ -143,7 +122,6 @@ def segment_formula_lines(image_input, padding=12, min_line_height=18):
     if in_line and (img_h - start_y) >= min_line_height:
         line_ranges.append((start_y, img_h))
 
-    # 5. Merge ranges that are too close (e.g., fraction numerators/denominators or dots)
     merged_ranges = []
     min_gap = int(img_h * 0.05)  # 5% of total image height gap threshold
     for r in line_ranges:
@@ -157,7 +135,6 @@ def segment_formula_lines(image_input, padding=12, min_line_height=18):
             else:
                 merged_ranges.append(r)
 
-    # If only 1 line range found, return original image
     if len(merged_ranges) <= 1:
         return [pil_img]
 
@@ -173,7 +150,6 @@ def segment_formula_lines(image_input, padding=12, min_line_height=18):
 
 
 def create_causal_mask(seq_len, device="cpu"):
-    """Creates a triangular causal mask for transformer target sequence."""
     mask = torch.triu(torch.ones(seq_len, seq_len, device=device), diagonal=1)
     mask = mask.masked_fill(mask == 1, float("-inf"))
     return mask
@@ -181,9 +157,6 @@ def create_causal_mask(seq_len, device="cpu"):
 
 @torch.no_grad()
 def greedy_decode(model, image_tensor, vocab, device="cpu", max_length=MAX_FORMULA_LENGTH):
-    """
-    Performs greedy search autoregressive decoding to generate a formula string.
-    """
     model.eval()
     sos_idx = vocab.token2idx["<SOS>"]
     eos_idx = vocab.token2idx["<EOS>"]
@@ -215,9 +188,7 @@ def greedy_decode(model, image_tensor, vocab, device="cpu", max_length=MAX_FORMU
 
 @torch.no_grad()
 def beam_search_decode(model, image_tensor, vocab, device="cpu", beam_size=5, max_length=MAX_FORMULA_LENGTH, length_penalty=0.7):
-    """
-    Performs beam search autoregressive decoding with length normalization.
-    """
+
     model.eval()
     sos_idx = vocab.token2idx["<SOS>"]
     eos_idx = vocab.token2idx["<EOS>"]

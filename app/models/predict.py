@@ -1,8 +1,3 @@
-# ==========================================================\n# Handwritten Mathematical Formula Recognition System
-# Module: predict.py
-# Description: Model Predictor Singleton for high-performance inference.
-#              Loads PyTorch model weights into GPU/CPU memory ONCE on application startup.
-# ==========================================================\n
 import os
 import torch
 from app.models.model import FormulaRecognizer, load_vocab_file
@@ -14,16 +9,11 @@ from app.preprocessing.image_processing import (
 from app.preprocessing.segmentation import segment_formula_lines
 from app.utils.utils import greedy_decode, beam_search_decode
 
-# Global Singleton Predictor Instance
 _PREDICTOR_INSTANCE = None
 
 
 class ModelPredictor:
-    """
-    Singleton predictor class managing Vocabulary and PyTorch FormulaRecognizer model state.
-    Ensures model weights are loaded exactly ONCE during backend startup.
-    """
-
+ 
     def __init__(self, model_path="weights/best_model.pth", vocab_path="weights/vocab.pkl"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print("=" * 60)
@@ -71,17 +61,7 @@ class ModelPredictor:
         print("=" * 60)
 
     def predict(self, image_input, decode_method="beam", beam_size=5):
-        """
-        Executes model forward pass and decoding.
-        
-        Args:
-            image_input (str, bytes, PIL.Image): Image file path, raw bytes, or PIL Image object.
-            decode_method (str): Decoding strategy - 'beam' or 'greedy'.
-            beam_size (int): Beam width for beam search decoding.
-
-        Returns:
-            str: Predicted LaTeX formula string.
-        """
+ 
         tensor_image, _ = preprocess_image(image_input)
         tensor_image = tensor_image.to(self.device)
 
@@ -96,10 +76,7 @@ class ModelPredictor:
         return prediction
 
     def predict_multiline(self, image_input, decode_method="beam", beam_size=5):
-        """
-        Detects formula lines using OpenCV segmenter and predicts each line independently.
-        Returns a dict containing 'predictions' list, combined formula string, and pipeline images.
-        """
+       
         line_crops = segment_formula_lines(image_input)
         line_preds = []
         line_crops_b64 = []
@@ -135,7 +112,6 @@ class ModelPredictor:
 
 
 def init_predictor(model_path="weights/best_model.pth", vocab_path="weights/vocab.pkl"):
-    """Initializes global singleton predictor during application startup."""
     global _PREDICTOR_INSTANCE
     if _PREDICTOR_INSTANCE is None:
         _PREDICTOR_INSTANCE = ModelPredictor(model_path, vocab_path)
@@ -143,7 +119,6 @@ def init_predictor(model_path="weights/best_model.pth", vocab_path="weights/voca
 
 
 def get_predictor():
-    """Gets existing singleton predictor instance."""
     global _PREDICTOR_INSTANCE
     if _PREDICTOR_INSTANCE is None:
         _PREDICTOR_INSTANCE = init_predictor()
@@ -151,17 +126,10 @@ def get_predictor():
 
 
 def predict(image_path, decode_method="beam", beam_size=5):
-    """
-    Main prediction wrapper matching specification:
-    predict(image_path) -> returns prediction formula string.
-    """
     predictor = get_predictor()
     return predictor.predict(image_path, decode_method=decode_method, beam_size=beam_size)
 
 
 def predict_multiline(image_path, decode_method="beam", beam_size=5):
-    """
-    Multi-line prediction wrapper returning structured predictions dictionary.
-    """
     predictor = get_predictor()
     return predictor.predict_multiline(image_path, decode_method=decode_method, beam_size=beam_size)

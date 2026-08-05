@@ -1,7 +1,3 @@
-# ==========================================================
-# File: solver.py
-# Description: SymPy Symbolic Solver + Matplotlib Graph Plotter + Gemini AI Explanation Engine
-# ==========================================================
 import os
 import io
 import re
@@ -13,10 +9,6 @@ matplotlib.use("Agg")  # Non-interactive backend
 import matplotlib.pyplot as plt
 
 def solve_and_explain(formula_latex: str, api_key: str = None):
-    """
-    Combines SymPy symbolic solving, Matplotlib graph generation, and Gemini AI explanations.
-    Always returns a successful JSON dictionary with non-empty results.
-    """
     clean_latex = formula_latex.strip() if formula_latex else ""
     if not clean_latex:
         return {
@@ -133,9 +125,7 @@ def generate_sympy_solution(formula_latex: str) -> str:
 
 
 def generate_matplotlib_plot(formula_latex: str):
-    """
-    Generates a sleek dark-mode Matplotlib graph (base64 PNG data URL).
-    """
+
     try:
         plt.style.use('dark_background')
         fig, ax = plt.subplots(figsize=(7, 3.8), dpi=120)
@@ -196,9 +186,7 @@ def generate_matplotlib_plot(formula_latex: str):
 
 
 def generate_gemini_explanation(formula_latex: str, solution_latex: str, api_key: str = None) -> str:
-    """
-    Generates detailed AI explanation using Gemini API (with fallback if API key is not present).
-    """
+ 
     api_key = api_key or os.getenv("GEMINI_API_KEY")
     
     if api_key:

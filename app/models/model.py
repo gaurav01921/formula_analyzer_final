@@ -1,8 +1,3 @@
-# ==========================================================\n# Handwritten Mathematical Formula Recognition System
-# Module: model.py
-# Description: Defines the Vocabulary class, Encoder (EfficientNet-B0),
-#              PositionalEncoding, Decoder (Transformer), and FormulaRecognizer.
-# ==========================================================\n
 import os
 import math
 import pickle
@@ -13,7 +8,6 @@ from collections import Counter
 
 
 class Vocabulary:
-    """Vocabulary manager mapping tokens to unique integer indices and vice versa."""
 
     def __init__(self, min_freq=1):
         self.min_freq = min_freq
@@ -56,7 +50,7 @@ class Vocabulary:
 
 
 class PositionalEncoding(nn.Module):
-    """Sinusoidal Positional Encoding for sequence representation."""
+
 
     def __init__(self, d_model=256, dropout=0.1, max_len=5000):
         super().__init__()
@@ -77,7 +71,6 @@ class PositionalEncoding(nn.Module):
 
 
 class Encoder(nn.Module):
-    """CNN Encoder based on EfficientNet-B0 with spatial adaptive pooling and projection."""
 
     def __init__(self, embed_dim=256):
         super().__init__()
@@ -96,7 +89,6 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    """Transformer Decoder module for autoregressive formula token generation."""
 
     def __init__(self, vocab_size, embed_dim=256, num_heads=8, num_layers=4, dropout=0.1, pad_idx=0):
         super().__init__()
@@ -126,7 +118,6 @@ class Decoder(nn.Module):
 
 
 class FormulaRecognizer(nn.Module):
-    """Full Encoder-Decoder model combining EfficientNet-B0 and Transformer Decoder."""
 
     def __init__(self, vocab_size, embed_dim=256, num_heads=8, num_layers=4, dropout=0.1, pad_idx=0):
         super().__init__()
@@ -153,7 +144,7 @@ class CustomUnpickler(pickle.Unpickler):
 
 
 def load_vocab_file(vocab_path="weights/vocab.pkl"):
-    """Utility function to load vocabulary object from disk handling __main__ scope."""
+   
     if not os.path.exists(vocab_path):
         if os.path.exists("vocab.pkl"):
             vocab_path = "vocab.pkl"
