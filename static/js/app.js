@@ -179,6 +179,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Stepper & Animated Progress Bar Logic
+  const progressFill = document.getElementById('progress-fill');
+  const stepItems = [
+    document.getElementById('step-1'),
+    document.getElementById('step-2'),
+    document.getElementById('step-3'),
+    document.getElementById('step-4')
+  ];
+
+  function updateStepProgress(stepNum) {
+    const percentages = ['0%', '33%', '66%', '100%'];
+    if (progressFill) progressFill.style.width = percentages[stepNum - 1];
+
+    stepItems.forEach((item, index) => {
+      if (!item) return;
+      if (index + 1 < stepNum) {
+        item.className = 'step-item completed';
+      } else if (index + 1 === stepNum) {
+        item.className = 'step-item active';
+      } else {
+        item.className = 'step-item';
+      }
+    });
+  }
+
   // Run Formula Recognition Prediction
   btnPredict.addEventListener('click', async () => {
     if (!selectedFile) {
@@ -195,6 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnPredict.disabled = true;
     btnPredict.innerHTML = `<span class="spinner"></span> Analyzing Formula...`;
 
+    // Step 1: Upload Image
+    updateStepProgress(1);
+    const t2 = setTimeout(() => updateStepProgress(2), 350);  // Step 2: Preprocess & Otsu
+    const t3 = setTimeout(() => updateStepProgress(3), 850);  // Step 3: Neural Inference
+
     const formData = new FormData();
     formData.append('file', selectedFile);
     formData.append('decode_method', decodeMethodSelect.value);
@@ -210,6 +240,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        clearTimeout(t2);
+        clearTimeout(t3);
+
+        // Step 4: LaTeX Result Complete
+        updateStepProgress(4);
+
         renderPredictionResult(data.prediction);
         
         // Render Step 2: Image Pipeline & Preprocessing Visualizer
@@ -223,14 +259,21 @@ document.addEventListener('DOMContentLoaded', () => {
           pipelineOtsuImg.src = data.otsu_image_base64 || data.preprocessed_image_base64;
           pipelineMeta.textContent = `Tensor Shape: ${data.tensor_shape || '[1, 3, 128, 512]'} | Aspect-Ratio Padded & Normalized`;
           pipelineCard.style.display = 'block';
+          pipelineCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
         showToast('Formula recognized successfully!');
         setStatus('connected', 'Connected');
       } else {
+        clearTimeout(t2);
+        clearTimeout(t3);
+        updateStepProgress(1);
         showToast(data.error || 'Failed to predict formula.', true);
       }
     } catch (err) {
+      clearTimeout(t2);
+      clearTimeout(t3);
+      updateStepProgress(1);
       console.error('Prediction API call failed:', err);
       showToast('Network error connecting to backend. Is your FastAPI server/ngrok running?', true);
       setStatus('disconnected', 'Disconnected');

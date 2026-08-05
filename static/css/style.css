@@ -607,3 +607,87 @@ body {
   margin-top: 0.6rem;
   text-align: center;
 }
+
+/* Stepper & Progress Bar Styling */
+.stepper-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto 2.5rem auto;
+  padding: 0 1rem;
+}
+
+.progress-track {
+  position: absolute;
+  top: 22px;
+  left: 60px;
+  right: 60px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  z-index: 1;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--primary), var(--accent-cyan));
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 15px var(--primary-glow);
+  transition: width 0.4s ease;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+  position: relative;
+}
+
+.step-node {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  color: var(--text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+.step-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+  transition: color 0.3s ease;
+}
+
+.step-item.active .step-node {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+  transform: scale(1.1);
+}
+
+.step-item.active .step-label {
+  color: var(--text-main);
+}
+
+.step-item.completed .step-node {
+  border-color: var(--accent-emerald);
+  background: var(--accent-emerald);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+.step-item.completed .step-label {
+  color: var(--accent-emerald);
+}

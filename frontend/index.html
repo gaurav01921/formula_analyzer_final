@@ -63,6 +63,33 @@
       <p class="hero-subtitle">Upload or draw any handwritten mathematical equation to extract accurate, copy-ready LaTeX code powered by Deep Learning.</p>
     </header>
 
+    <!-- Pipeline Stepper & Animated Progress Bar -->
+    <div class="stepper-container" id="stepper-container">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      
+      <div class="step-item active" id="step-1">
+        <div class="step-node"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+        <span class="step-label">1. Upload Image</span>
+      </div>
+      
+      <div class="step-item" id="step-2">
+        <div class="step-node"><i class="fa-solid fa-image"></i></div>
+        <span class="step-label">2. Preprocess & Otsu</span>
+      </div>
+      
+      <div class="step-item" id="step-3">
+        <div class="step-node"><i class="fa-solid fa-microchip"></i></div>
+        <span class="step-label">3. Neural Inference</span>
+      </div>
+      
+      <div class="step-item" id="step-4">
+        <div class="step-node"><i class="fa-solid fa-square-root-variable"></i></div>
+        <span class="step-label">4. LaTeX Result</span>
+      </div>
+    </div>
+
     <!-- Main App Grid -->
     <div class="app-grid">
 
