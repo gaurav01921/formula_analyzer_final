@@ -200,11 +200,14 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 Open your browser and navigate to `http://127.0.0.1:8000`.
 
 ### Run backend:
-'''bash
+```bash
 .\ngrok.exe http 8000
-'''
+```
 
-copy: https://neon-retake-mouth.ngrok-free.dev
+copy:
+```bash
+https://neon-retake-mouth.ngrok-free.dev
+```
 
 ### 2. Test Formula Recognition
 
