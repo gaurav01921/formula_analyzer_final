@@ -293,9 +293,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // DOM Elements for Editor & AI Solver
+  const latexEditorInput = document.getElementById('latex-editor-input');
+  const btnSolve = document.getElementById('btn-solve');
+  const solutionCard = document.getElementById('solution-card');
+  const solutionRenderBox = document.getElementById('solution-render-box');
+  const explanationContent = document.getElementById('explanation-content');
+
   // Render Formula Output via KaTeX
   function renderPredictionResult(formulaStr) {
     rawLatexOutput.textContent = formulaStr;
+    if (latexEditorInput) latexEditorInput.value = formulaStr;
 
     if (window.katex) {
       try {
@@ -312,9 +320,94 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Interactive Live Formula Editor Synchronization
+  if (latexEditorInput) {
+    latexEditorInput.addEventListener('input', (e) => {
+      const updatedFormula = e.target.value;
+      rawLatexOutput.textContent = updatedFormula;
+      if (window.katex && updatedFormula.trim()) {
+        try {
+          mathRenderBox.innerHTML = '';
+          katex.render(updatedFormula, mathRenderBox, {
+            displayMode: true,
+            throwOnError: false
+          });
+        } catch (err) {
+          mathRenderBox.textContent = updatedFormula;
+        }
+      }
+    });
+  }
+
+  // Solve & Explain with AI Button Handler
+  if (btnSolve) {
+    btnSolve.addEventListener('click', async () => {
+      const formulaToSolve = latexEditorInput ? latexEditorInput.value.trim() : rawLatexOutput.textContent.trim();
+      if (!formulaToSolve || formulaToSolve.includes('will appear here')) {
+        showToast('Please upload or enter a formula to solve!', true);
+        return;
+      }
+
+      const backendUrl = backendUrlInput.value.trim().replace(/\/+$/, '');
+      btnSolve.disabled = true;
+      btnSolve.innerHTML = `<span class="spinner"></span> Solving with AI...`;
+
+      try {
+        const response = await fetch(`${backendUrl}/api/solve`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+          },
+          body: JSON.stringify({ formula: formulaToSolve })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Render Solved KaTeX
+          if (window.katex && data.solution_latex) {
+            solutionRenderBox.innerHTML = '';
+            katex.render(data.solution_latex, solutionRenderBox, {
+              displayMode: true,
+              throwOnError: false
+            });
+          } else {
+            solutionRenderBox.textContent = data.solution_latex || formulaToSolve;
+          }
+
+          // Format Markdown Explanation
+          explanationContent.innerHTML = formatMarkdown(data.explanation || 'Solution calculated.');
+          solutionCard.style.display = 'block';
+          solutionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          showToast('Formula solved and explained successfully!');
+        } else {
+          showToast(data.error || 'Failed to solve formula.', true);
+        }
+      } catch (err) {
+        console.error('Solve API Error:', err);
+        showToast('Error connecting to solver API.', true);
+      } finally {
+        btnSolve.disabled = false;
+        btnSolve.innerHTML = `<i class="fa-solid fa-brain"></i> Solve & Explain with AI`;
+      }
+    });
+  }
+
+  // Simple Markdown Formatter Helper
+  function formatMarkdown(mdText) {
+    return mdText
+      .replace(/^### (.*$)/gim, '<h3 style="color:#a5b4fc; font-size:1.05rem; margin-top:1rem; margin-bottom:0.4rem;">$1</h3>')
+      .replace(/^#### (.*$)/gim, '<h4 style="color:var(--accent-cyan); font-size:0.95rem; margin-top:0.8rem; margin-bottom:0.3rem;">$1</h4>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.1); padding:0.1rem 0.3rem; border-radius:3px;">$1</code>')
+      .replace(/\n\n/g, '<br><br>');
+  }
+
   // Copy to Clipboard
   btnCopy.addEventListener('click', () => {
-    const textToCopy = rawLatexOutput.textContent;
+    const textToCopy = latexEditorInput ? latexEditorInput.value : rawLatexOutput.textContent;
     if (!textToCopy || textToCopy.includes('will appear here')) return;
 
     navigator.clipboard.writeText(textToCopy).then(() => {

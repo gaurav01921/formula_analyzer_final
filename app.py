@@ -2,18 +2,23 @@
 # Module: app.py
 # Description: FastAPI Application Server providing REST APIs and Web Interface.
 # ==========================================================\n
+# ==========================================================
+
 import os
 import uuid
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from typing import Optional
+from pydantic import BaseModel
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from predict import init_predictor, predict, get_predictor, predict_multiline
+from solver import solve_and_explain
 
 # Directory configurations
 BASE_DIR = Path(__file__).resolve().parent
@@ -185,6 +190,23 @@ async def handle_prediction(
                 "error": f"Prediction failed due to an internal server error: {str(e)}"
             }
         )
+
+
+class SolveRequest(BaseModel):
+    formula: str
+    api_key: Optional[str] = None
+
+
+@app.post("/api/solve")
+async def solve_formula_endpoint(request: SolveRequest):
+    """Solves formula and generates Gemini AI step-by-step explanation."""
+    try:
+        result = solve_and_explain(request.formula, api_key=request.api_key)
+        headers = {"ngrok-skip-browser-warning": "true"}
+        return JSONResponse(status_code=200, headers=headers, content=result)
+    except Exception as e:
+        print(f"[ERROR] [/api/solve Error]: {str(e)}")
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
 
 
 @app.get("/api/health")

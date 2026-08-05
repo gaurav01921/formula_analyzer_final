@@ -164,10 +164,25 @@
 
           <!-- Raw LaTeX Code View -->
           <div class="raw-latex-box">
-            <button class="btn-copy" id="btn-copy" title="Copy LaTeX code to clipboard">
-              <i class="fa-regular fa-copy"></i> Copy
-            </button>
             <div class="raw-latex-code" id="raw-latex-output">\text{LaTeX output code will appear here}</div>
+          </div>
+
+          <!-- Interactive Editable LaTeX Field -->
+          <div class="editor-group" style="margin-top: 1rem;">
+            <label for="latex-editor-input" class="editor-label" style="font-size: 0.82rem; font-weight: 600; color: var(--text-subtle); margin-bottom: 0.4rem; display: block;">
+              <i class="fa-solid fa-pen-to-square"></i> Edit Formula LaTeX Code:
+            </label>
+            <textarea id="latex-editor-input" class="textarea-custom" rows="2" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--accent-cyan); font-family: var(--font-mono); padding: 0.6rem; font-size: 0.9rem; resize: vertical;" placeholder="Edit formula LaTeX code here..."></textarea>
+          </div>
+
+          <!-- Action Buttons Flex -->
+          <div class="action-buttons-flex" style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+            <button class="btn-copy" id="btn-copy" style="flex: 1;">
+              <i class="fa-regular fa-copy"></i> Copy LaTeX
+            </button>
+            <button class="btn-solve" id="btn-solve" style="flex: 2; background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 0.65rem 1rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+              <i class="fa-solid fa-brain"></i> Solve & Explain with AI
+            </button>
           </div>
 
         </div>
@@ -205,6 +220,36 @@
           <p class="pipeline-meta" id="pipeline-meta">
             Tensor Shape: [1, 3, 128, 512] | Padded & Normalized for Model Encoder
           </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3: Solution & Gemini AI Explanation Card Section -->
+    <section class="card solution-card" id="solution-card" style="display: none; margin-top: 2rem;">
+      <div class="pipeline-header">
+        <h3 class="card-title" style="margin-bottom: 0;">
+          🧠 Step 3: Solution & Gemini AI Explanation
+        </h3>
+        <span class="badge-active" style="background: rgba(99, 102, 241, 0.15); border-color: var(--primary); color: #a5b4fc;">
+          <i class="fa-solid fa-sparkles"></i> Gemini AI Active
+        </span>
+      </div>
+
+      <div class="solution-grid" style="display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 1.25rem;">
+        <!-- Solution Render Box -->
+        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h4 class="pipeline-box-title" style="color: var(--accent-emerald);">Calculated Mathematical Solution</h4>
+          <div class="rendered-math-box" id="solution-render-box" style="margin-top: 0.75rem;">
+            <!-- Solved KaTeX math renders here -->
+          </div>
+        </div>
+
+        <!-- Gemini AI Explanation Box -->
+        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h4 class="pipeline-box-title" style="color: #a5b4fc;">Step-by-Step Gemini AI Concept Breakdown</h4>
+          <div class="explanation-content" id="explanation-content" style="margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.7; color: var(--text-main);">
+            <!-- Markdown explanation renders here -->
+          </div>
         </div>
       </div>
     </section>
