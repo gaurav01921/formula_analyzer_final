@@ -9,25 +9,34 @@ __pycache__/
 venv/
 env/
 
-# VS Code
+# IDE & Editor
 .vscode/
+.idea/
+.antigravity/
 
-# Dataset
+# Datasets & Checkpoints
 dataset/
-
-# Training checkpoints
 checkpoints/
 
-# Notebook cache
+# Uploads (keep directory structure)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Executables & Local Binaries
+ngrok.exe
+ngrok.zip
+
+# Vercel & Node
+.vercel/
+node_modules/
+
+# Notebook & Build Artifacts
 .ipynb_checkpoints/
-
-# Uploads
-static/uploads/
-
-# Build
 .dist/
+build/
+dist/
 
-# OS
+# Logs & OS Files
+*.log
 .DS_Store
 Thumbs.db
-

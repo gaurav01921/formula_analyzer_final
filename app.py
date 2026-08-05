@@ -43,11 +43,22 @@ async def lifespan(app: FastAPI):
     print("[SHUTDOWN] [FastAPI Server] Shutting down application server.")
 
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="Handwritten Mathematical Formula Recognition System",
     description="Modern AI-powered LaTeX formula recognition system built with PyTorch & FastAPI.",
     version="1.0.0",
     lifespan=lifespan
+)
+
+# Enable CORS for Vercel frontend & cross-origin API calls
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Mount Static Files & Templates
@@ -82,6 +93,7 @@ async def render_result_page(request: Request, formula: str = "", image_url: str
     )
 
 
+@app.post("/api/predict")
 @app.post("/predict")
 async def handle_prediction(
     file: UploadFile = File(...),
@@ -144,8 +156,11 @@ async def handle_prediction(
 
         relative_image_url = f"/static/uploads/{unique_filename}"
 
+        headers = {"ngrok-skip-browser-warning": "true"}
+
         return JSONResponse(
             status_code=200,
+            headers=headers,
             content={
                 "success": True,
                 "prediction": prediction_str,
@@ -166,18 +181,24 @@ async def handle_prediction(
         )
 
 
+@app.get("/api/health")
 @app.get("/health")
 async def health_check():
     """Health check endpoint confirming API server & predictor status."""
     try:
         predictor = get_predictor()
-        return {
-            "status": "healthy",
-            "device": str(predictor.device),
-            "vocab_size": len(predictor.vocab)
-        }
+        headers = {"ngrok-skip-browser-warning": "true"}
+        return JSONResponse(
+            status_code=200,
+            headers=headers,
+            content={
+                "status": "healthy",
+                "device": str(predictor.device),
+                "vocab_size": len(predictor.vocab)
+            }
+        )
     except Exception as e:
-        return {"status": "unhealthy", "error": str(e)}
+        return JSONResponse(status_code=500, content={"status": "unhealthy", "error": str(e)})
 
 
 if __name__ == "__main__":

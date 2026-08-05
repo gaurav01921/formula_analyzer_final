@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "name": "handwritten-formula-analyzer-frontend",
+  "cleanUrls": true,
+  "routes": [
+    { "src": "/(.*)", "dest": "/$1" }
+  ]
+}

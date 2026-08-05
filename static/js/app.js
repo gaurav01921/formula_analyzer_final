@@ -1,0 +1,269 @@
+/* ==========================================================
+   Handwritten Mathematical Formula Recognition System
+   Frontend Application Script (Vanilla JS)
+   ========================================================== */
+
+document.addEventListener('DOMContentLoaded', () => {
+  // DOM Elements
+  const backendUrlInput = document.getElementById('backend-url-input');
+  const btnPing = document.getElementById('btn-ping');
+  const statusDot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('file-input');
+  const previewBox = document.getElementById('preview-box');
+  const previewImg = document.getElementById('preview-img');
+  const btnRemovePreview = document.getElementById('btn-remove-preview');
+
+  const decodeMethodSelect = document.getElementById('decode-method');
+  const beamSizeContainer = document.getElementById('beam-size-container');
+  const beamSizeSlider = document.getElementById('beam-size');
+  const beamVal = document.getElementById('beam-val');
+
+  const btnPredict = document.getElementById('btn-predict');
+  const mathRenderBox = document.getElementById('math-render-box');
+  const rawLatexOutput = document.getElementById('raw-latex-output');
+  const btnCopy = document.getElementById('btn-copy');
+
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toast-msg');
+
+  let selectedFile = null;
+
+  // Initialize Backend URL (stored in localStorage or fallback to origin/local)
+  const savedUrl = localStorage.getItem('formula_analyzer_backend_url') || getInitialBackendUrl();
+  backendUrlInput.value = savedUrl;
+  checkBackendHealth(savedUrl);
+
+  function getInitialBackendUrl() {
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return 'http://127.0.0.1:8000';
+    }
+    return window.location.origin;
+  }
+
+  // Ping Backend Health Check
+  async function checkBackendHealth(targetUrl) {
+    targetUrl = targetUrl.trim().replace(/\/+$/, '');
+    setStatus('connecting', 'Connecting...');
+    try {
+      const response = await fetch(`${targetUrl}/api/health`, {
+        method: 'GET',
+        headers: { 'ngrok-skip-browser-warning': 'true' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setStatus('connected', `Connected (${data.device || 'CPU'})`);
+        localStorage.setItem('formula_analyzer_backend_url', targetUrl);
+      } else {
+        setStatus('disconnected', 'Server Error');
+      }
+    } catch (err) {
+      console.warn('Backend ping failed:', err);
+      setStatus('disconnected', 'Disconnected');
+    }
+  }
+
+  function setStatus(state, text) {
+    statusDot.className = 'status-dot ' + state;
+    statusText.textContent = text;
+  }
+
+  btnPing.addEventListener('click', () => {
+    checkBackendHealth(backendUrlInput.value);
+  });
+
+  // Decode method toggle & Beam size slider
+  decodeMethodSelect.addEventListener('change', () => {
+    if (decodeMethodSelect.value === 'beam') {
+      beamSizeContainer.style.display = 'block';
+    } else {
+      beamSizeContainer.style.display = 'none';
+    }
+  });
+
+  beamSizeSlider.addEventListener('input', (e) => {
+    beamVal.textContent = e.target.value;
+  });
+
+  // File Upload Drag & Drop Handlers
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    });
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFileSelection(files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      handleFileSelection(e.target.files[0]);
+    }
+  });
+
+  function handleFileSelection(file) {
+    const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/bmp'];
+    if (!allowed.includes(file.type.toLowerCase())) {
+      showToast('Please upload a valid image file (PNG, JPG, WEBP, BMP).', true);
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Image size exceeds 10MB limit.', true);
+      return;
+    }
+
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImg.src = e.target.result;
+      previewBox.style.display = 'block';
+      dropzone.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  btnRemovePreview.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    previewImg.src = '';
+    previewBox.style.display = 'none';
+    dropzone.style.display = 'block';
+  });
+
+  // Sample Formula Presets
+  const sampleCanvas = document.createElement('canvas');
+  sampleCanvas.width = 512;
+  sampleCanvas.height = 128;
+  const ctx = sampleCanvas.getContext('2d');
+
+  document.querySelectorAll('.btn-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.getAttribute('data-preset');
+      // Draw simple mathematical text representation onto canvas as sample image
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 512, 128);
+      ctx.fillStyle = '#000000';
+      ctx.font = 'bold 36px serif';
+      ctx.textAlign = 'center';
+
+      if (type === 'integral') {
+        ctx.fillText('∫ x² dx', 256, 75);
+      } else if (type === 'summation') {
+        ctx.fillText('∑ i = 1 to n', 256, 75);
+      } else {
+        ctx.fillText('a / b + c = d', 256, 75);
+      }
+
+      sampleCanvas.toBlob((blob) => {
+        const file = new File([blob], `sample_${type}.png`, { type: 'image/png' });
+        handleFileSelection(file);
+      });
+    });
+  });
+
+  // Run Formula Recognition Prediction
+  btnPredict.addEventListener('click', async () => {
+    if (!selectedFile) {
+      showToast('Please select or drag an image first!', true);
+      return;
+    }
+
+    const backendUrl = backendUrlInput.value.trim().replace(/\/+$/, '');
+    if (!backendUrl) {
+      showToast('Please enter a valid FastAPI / Ngrok Backend URL.', true);
+      return;
+    }
+
+    btnPredict.disabled = true;
+    btnPredict.innerHTML = `<span class="spinner"></span> Analyzing Formula...`;
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('decode_method', decodeMethodSelect.value);
+    formData.append('beam_size', beamSizeSlider.value);
+
+    try {
+      const response = await fetch(`${backendUrl}/api/predict`, {
+        method: 'POST',
+        headers: { 'ngrok-skip-browser-warning': 'true' },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        renderPredictionResult(data.prediction);
+        showToast('Formula recognized successfully!');
+        setStatus('connected', 'Connected');
+      } else {
+        showToast(data.error || 'Failed to predict formula.', true);
+      }
+    } catch (err) {
+      console.error('Prediction API call failed:', err);
+      showToast('Network error connecting to backend. Is your FastAPI server/ngrok running?', true);
+      setStatus('disconnected', 'Disconnected');
+    } finally {
+      btnPredict.disabled = false;
+      btnPredict.innerHTML = `<i class="fa-solid fa-bolt"></i> Recognize Formula`;
+    }
+  });
+
+  // Render Formula Output via KaTeX
+  function renderPredictionResult(formulaStr) {
+    rawLatexOutput.textContent = formulaStr;
+
+    if (window.katex) {
+      try {
+        mathRenderBox.innerHTML = '';
+        katex.render(formulaStr, mathRenderBox, {
+          displayMode: true,
+          throwOnError: false
+        });
+      } catch (err) {
+        mathRenderBox.textContent = formulaStr;
+      }
+    } else {
+      mathRenderBox.textContent = formulaStr;
+    }
+  }
+
+  // Copy to Clipboard
+  btnCopy.addEventListener('click', () => {
+    const textToCopy = rawLatexOutput.textContent;
+    if (!textToCopy || textToCopy.includes('will appear here')) return;
+
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      showToast('LaTeX code copied to clipboard!');
+    }).catch(() => {
+      showToast('Failed to copy text', true);
+    });
+  });
+
+  // Toast message helper
+  function showToast(msg, isError = false) {
+    toastMsg.textContent = msg;
+    toast.style.borderColor = isError ? 'var(--accent-rose)' : 'var(--accent-emerald)';
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3500);
+  }
+});
