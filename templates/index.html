@@ -243,39 +243,100 @@
         </div>
       </section>
 
-      <!-- Section 1: SymPy Mathematical Solution Card -->
+      <!-- Step 4: SymPy Exact Mathematical Solver Card -->
       <section class="card solution-card" id="sympy-card" style="display: none; margin-top: 2rem;">
-        <div class="pipeline-header">
-          <h3 class="card-title" style="margin-bottom: 0;">
-            ⚡ SymPy Mathematical Solution
+        <div class="pipeline-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+          <h3 class="card-title" style="margin-bottom: 0; display: flex; align-items: center; gap: 0.5rem; color: #f8fafc; font-size: 1.2rem;">
+            <i class="fa-solid fa-square-root-variable" style="color: #10b981;"></i> Step 4: SymPy Exact Mathematical Solver
           </h3>
-          <span class="badge-active" style="background: rgba(16, 185, 129, 0.15); border-color: var(--accent-emerald); color: var(--accent-emerald);">
-            <i class="fa-solid fa-calculator"></i> SymPy Symbolic Engine
+          <span class="badge-active" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">
+            Python Symbolic Engine v1.14
           </span>
         </div>
 
-        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
-          <h4 class="pipeline-box-title" style="color: var(--accent-emerald);">Calculated Exact Symbolic Solution</h4>
-          <div class="rendered-math-box" id="sympy-render-box" style="margin-top: 0.75rem;">
-            <!-- Solved KaTeX math renders here -->
+        <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 0.75rem 1rem; margin-top: 1rem; display: flex; align-items: center; gap: 0.6rem; color: #10b981; font-weight: 600; font-size: 0.9rem;">
+          <i class="fa-solid fa-square-check" style="font-size: 1.1rem;"></i>
+          <span id="sympy-status-text">SymPy Engine: Symbolic Solution for variable x</span>
+        </div>
+
+        <div class="sympy-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.25rem;">
+          <!-- Column 1: Exact Symbolic Solution (LaTeX) -->
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+            <h4 style="color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+              <i class="fa-solid fa-ruler-combined" style="color: var(--accent-cyan);"></i> Exact Symbolic Solution (LaTeX)
+            </h4>
+            <div id="sympy-render-box" style="padding: 1rem; background: rgba(0,0,0,0.4); border-radius: var(--radius-sm); min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              <!-- Renders x_1 and x_2 roots -->
+            </div>
+          </div>
+
+          <!-- Column 2: Numerical Approximations -->
+          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+            <h4 style="color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+              <i class="fa-solid fa-list-ol" style="color: var(--accent-cyan);"></i> Numerical Approximations
+            </h4>
+            <div id="numerical-apps-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <!-- SymPy string expressions render here -->
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- Section 2: Matplotlib Function Graph Plot Card -->
+      <!-- Step 5: Function Graph & Interactive Range Controls Card -->
       <section class="card solution-card" id="plot-card" style="display: none; margin-top: 2rem;">
-        <div class="pipeline-header">
-          <h3 class="card-title" style="margin-bottom: 0;">
-            📈 Matplotlib Function Graph & Visualization
+        <div class="pipeline-header" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+          <h3 class="card-title" style="margin-bottom: 0; display: flex; align-items: center; gap: 0.5rem; color: #f8fafc; font-size: 1.2rem;">
+            <i class="fa-solid fa-chart-area" style="color: var(--accent-cyan);"></i> Step 5: Function Graph & Interactive Range Controls
           </h3>
-          <span class="badge-active" style="background: rgba(56, 189, 248, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);">
-            <i class="fa-solid fa-chart-line"></i> Matplotlib Dark-Mode Engine
+          <span class="badge-active" style="background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); color: var(--accent-cyan); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600;">
+            Matplotlib 2D Curve Plotter
           </span>
         </div>
 
-        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
-          <h4 class="pipeline-box-title" style="color: var(--accent-cyan);">Function Curve Plot</h4>
-          <div class="plot-img-wrap" style="margin-top: 0.75rem; background: #0f172a; border-radius: var(--radius-sm); padding: 0.5rem; text-align: center;">
+        <div style="margin-top: 1.25rem; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+          <h4 style="color: var(--text-main); font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <i class="fa-solid fa-sliders" style="color: var(--accent-cyan);"></i> Graph Interactive Parameters & Range Sliders:
+          </h4>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; background: rgba(0,0,0,0.25); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <!-- Slider 1: X-Min -->
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3rem;">
+                <span>X-Axis Minimum (X-Min)</span>
+                <span id="val-xmin" style="color: #ef4444; font-weight: 700;">-10.00</span>
+              </div>
+              <input type="range" id="slider-xmin" min="-50" max="0" step="1" value="-10" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
+            </div>
+
+            <!-- Slider 2: X-Max -->
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3rem;">
+                <span>X-Axis Maximum (X-Max)</span>
+                <span id="val-xmax" style="color: #ef4444; font-weight: 700;">10.00</span>
+              </div>
+              <input type="range" id="slider-xmax" min="1" max="50" step="1" value="10" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
+            </div>
+
+            <!-- Slider 3: Y-Offset -->
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3rem;">
+                <span>Vertical Shift (Y-Offset)</span>
+                <span id="val-yoffset" style="color: #ef4444; font-weight: 700;">0.00</span>
+              </div>
+              <input type="range" id="slider-yoffset" min="-20" max="20" step="1" value="0" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
+            </div>
+
+            <!-- Slider 4: Plot Resolution -->
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.3rem;">
+                <span>Plot Resolution (Points)</span>
+                <span id="val-resolution" style="color: #ef4444; font-weight: 700;">400</span>
+              </div>
+              <input type="range" id="slider-resolution" min="100" max="1000" step="50" value="400" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
+            </div>
+          </div>
+
+          <div class="plot-img-wrap" style="margin-top: 1.25rem; background: #0b1329; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; text-align: center; min-height: 250px; display: flex; align-items: center; justify-content: center;">
             <img id="plot-img" src="" alt="Matplotlib Function Plot" style="max-width: 100%; border-radius: var(--radius-sm);">
           </div>
         </div>

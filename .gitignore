@@ -18,7 +18,7 @@ env/
 dataset/
 checkpoints/
 
-# Uploads (keep directory structure)
+# Uploads 
 static/uploads/*
 !static/uploads/.gitkeep
 
@@ -49,3 +49,8 @@ notebooks/
 # Training history
 training_history.csv
 confusion_matrix.csv
+
+# Evaluation Outputs
+evaluation/
+confusion_matrix.csv
+*.png

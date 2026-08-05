@@ -1,3 +1,8 @@
+/* ==========================================================
+   Handwritten Mathematical Formula Recognition System
+   Frontend Application Script (Vanilla JS)
+   ========================================================== */
+
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
   const backendUrlInput = document.getElementById('backend-url-input');

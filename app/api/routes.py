@@ -149,19 +149,28 @@ async def solve_formula_endpoint(request: Request):
         "ngrok-skip-browser-warning": "true"
     }
     try:
+        xmin, xmax, yoffset, resolution = -10.0, 10.0, 0.0, 400
         try:
             body = await request.json()
             formula = body.get("formula", "")
             api_key = body.get("api_key", None)
+            xmin = float(body.get("xmin", -10.0))
+            xmax = float(body.get("xmax", 10.0))
+            yoffset = float(body.get("yoffset", 0.0))
+            resolution = int(body.get("resolution", 400))
         except Exception:
             form = await request.form()
             formula = form.get("formula", "")
             api_key = form.get("api_key", None)
+            if form.get("xmin"): xmin = float(form.get("xmin"))
+            if form.get("xmax"): xmax = float(form.get("xmax"))
+            if form.get("yoffset"): yoffset = float(form.get("yoffset"))
+            if form.get("resolution"): resolution = int(form.get("resolution"))
 
         if not formula:
             return JSONResponse(status_code=400, headers=headers, content={"success": False, "error": "Formula is required."})
 
-        result = solve_and_explain(formula, api_key=api_key)
+        result = solve_and_explain(formula, api_key=api_key, xmin=xmin, xmax=xmax, yoffset=yoffset, resolution=resolution)
         return JSONResponse(status_code=200, headers=headers, content=result)
     except Exception as e:
         print(f"[ERROR] [/api/solve Error]: {str(e)}")
