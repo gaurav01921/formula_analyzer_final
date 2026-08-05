@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          // Render Solved KaTeX
+          // 1. Render SymPy Solved KaTeX
           if (window.katex && data.solution_latex) {
             solutionRenderBox.innerHTML = '';
             katex.render(data.solution_latex, solutionRenderBox, {
@@ -376,11 +376,21 @@ document.addEventListener('DOMContentLoaded', () => {
             solutionRenderBox.textContent = data.solution_latex || formulaToSolve;
           }
 
-          // Format Markdown Explanation
+          // 2. Render Matplotlib Function Plot
+          const plotBox = document.getElementById('plot-box');
+          const plotImg = document.getElementById('plot-img');
+          if (plotBox && plotImg && data.plot_image_base64) {
+            plotImg.src = data.plot_image_base64;
+            plotBox.style.display = 'block';
+          } else if (plotBox) {
+            plotBox.style.display = 'none';
+          }
+
+          // 3. Format Gemini AI Explanation
           explanationContent.innerHTML = formatMarkdown(data.explanation || 'Solution calculated.');
           solutionCard.style.display = 'block';
           solutionCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          showToast('Formula solved and explained successfully!');
+          showToast('Formula solved, plotted & explained!');
         } else {
           showToast(data.error || 'Failed to solve formula.', true);
         }
