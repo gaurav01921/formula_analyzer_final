@@ -42,5 +42,9 @@ dist/
 Thumbs.db
 
 
+# Jupyter Notebooks
+notebooks/
+*.ipynb
+
+# Training history
 training_history.csv
-notebooks
