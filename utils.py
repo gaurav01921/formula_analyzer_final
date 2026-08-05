@@ -65,17 +65,12 @@ def preprocess_image(image_input, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
     return tensor_image, padded_image
 
 
-def segment_formula_lines(image_input, padding=12, min_height=20, min_width=40):
+def segment_formula_lines(image_input, padding=12, min_line_height=18):
     """
-    OpenCV Line Segmenter: Detects individual formula lines in a multi-line image.
-    Crops each line into a standalone PIL Image.
+    OpenCV Line Segmenter using Horizontal Projection Profiling.
+    Detects horizontal ink density peaks to split multi-line handwritten formulas accurately,
+    even on lined notebook paper.
     
-    Args:
-        image_input (str, bytes, PIL.Image): Input image.
-        padding (int): Pixel margin added around each cropped bounding box.
-        min_height (int): Minimum height filter for noise.
-        min_width (int): Minimum width filter for noise.
-        
     Returns:
         list of PIL.Image: Cropped line sub-images ordered from top to bottom.
     """
@@ -90,41 +85,70 @@ def segment_formula_lines(image_input, padding=12, min_height=20, min_width=40):
 
     img_np = np.array(pil_img)
     gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
-    
-    # Binarize with Otsu thresholding
-    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-    
-    # Dilation with horizontal kernel to group characters on the same line
-    kernel_width = max(15, int(pil_img.width * 0.15))
-    h_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_width, 5))
-    dilated = cv2.dilate(thresh, h_kernel, iterations=2)
-    
-    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    
-    boxes = []
     img_h, img_w = gray.shape
-    
-    for c in contours:
-        x, y, w, h = cv2.boundingRect(c)
-        if w >= min_width and h >= min_height and (w * h) >= (img_w * img_h * 0.015):
-            boxes.append((x, y, w, h))
 
-    # If 0 or 1 line box found, or box covers >85% of total area, return whole image
-    if len(boxes) <= 1:
+    # 1. Smooth slightly to reduce noise
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    
+    # 2. Adaptive Gaussian thresholding to separate dark ink from background notebook lines
+    thresh = cv2.adaptiveThreshold(
+        blurred, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+        cv2.THRESH_BINARY_INV, 21, 10
+    )
+
+    # 3. Horizontal Projection Profile (sum ink intensity per row)
+    row_sums = np.sum(thresh, axis=1)
+    max_row = np.max(row_sums)
+    
+    if max_row == 0:
         return [pil_img]
 
-    # Sort boxes top to bottom
-    boxes = sorted(boxes, key=lambda b: b[1])
+    norm_profile = row_sums / max_row
+    
+    # Threshold to identify rows with active handwriting ink
+    is_text = norm_profile > 0.03
+    
+    # 4. Find contiguous vertical ranges (start_y, end_y)
+    line_ranges = []
+    in_line = False
+    start_y = 0
+    
+    for y, active in enumerate(is_text):
+        if active and not in_line:
+            in_line = True
+            start_y = y
+        elif not active and in_line:
+            in_line = False
+            if (y - start_y) >= min_line_height:
+                line_ranges.append((start_y, y))
+                
+    if in_line and (img_h - start_y) >= min_line_height:
+        line_ranges.append((start_y, img_h))
 
-    # Crop each line sub-image with padding
+    # 5. Merge ranges that are too close (e.g., fraction numerators/denominators or dots)
+    merged_ranges = []
+    min_gap = int(img_h * 0.05)  # 5% of total image height gap threshold
+    for r in line_ranges:
+        if not merged_ranges:
+            merged_ranges.append(r)
+        else:
+            prev_start, prev_end = merged_ranges[-1]
+            curr_start, curr_end = r
+            if (curr_start - prev_end) < min_gap:
+                merged_ranges[-1] = (prev_start, curr_end)
+            else:
+                merged_ranges.append(r)
+
+    # If only 1 line range found, return original image
+    if len(merged_ranges) <= 1:
+        return [pil_img]
+
+    # 6. Crop each detected formula line sub-image
     crops = []
-    for x, y, w, h in boxes:
-        x1 = max(0, x - padding)
-        y1 = max(0, y - padding)
-        x2 = min(img_w, x + w + padding)
-        y2 = min(img_h, y + h + padding)
-        
-        crop = pil_img.crop((x1, y1, x2, y2))
+    for y1, y2 in merged_ranges:
+        crop_y1 = max(0, y1 - padding)
+        crop_y2 = min(img_h, y2 + padding)
+        crop = pil_img.crop((0, crop_y1, img_w, crop_y2))
         crops.append(crop)
         
     return crops
