@@ -166,6 +166,10 @@ async def handle_prediction(
                 "lines": result["lines"],
                 "is_multiline": result["is_multiline"],
                 "line_count": result["line_count"],
+                "preprocessed_image_base64": result.get("preprocessed_image_base64"),
+                "otsu_image_base64": result.get("otsu_image_base64"),
+                "line_crops_base64": result.get("line_crops_base64"),
+                "tensor_shape": result.get("tensor_shape", "[1, 3, 128, 512]"),
                 "filename": unique_filename,
                 "image_url": relative_image_url,
                 "decode_method": decode_method

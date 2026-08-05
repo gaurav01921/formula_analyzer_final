@@ -6,7 +6,14 @@
 import os
 import torch
 from model import FormulaRecognizer, load_vocab_file
-from utils import preprocess_image, greedy_decode, beam_search_decode, segment_formula_lines
+from utils import (
+    preprocess_image, 
+    greedy_decode, 
+    beam_search_decode, 
+    segment_formula_lines,
+    image_to_base64,
+    create_otsu_visualization
+)
 
 # Global Singleton Predictor Instance
 _PREDICTOR_INSTANCE = None
@@ -92,14 +99,17 @@ class ModelPredictor:
     def predict_multiline(self, image_input, decode_method="beam", beam_size=5):
         """
         Detects formula lines using OpenCV segmenter and predicts each line independently.
-        Returns a dict containing 'predictions' list and combined formula string.
+        Returns a dict containing 'predictions' list, combined formula string, and pipeline images.
         """
         line_crops = segment_formula_lines(image_input)
         line_preds = []
+        line_crops_b64 = []
+
         for crop in line_crops:
             pred = self.predict(crop, decode_method=decode_method, beam_size=beam_size)
             if pred and pred.strip():
                 line_preds.append(pred.strip())
+            line_crops_b64.append(image_to_base64(crop))
         
         if len(line_preds) > 1:
             combined = " \\\\ \n".join(line_preds)
@@ -107,12 +117,21 @@ class ModelPredictor:
             combined = line_preds[0]
         else:
             combined = ""
-            
+
+        # Generate preprocessed tensor visualization for Step 2 UI
+        _, padded_canvas = preprocess_image(line_crops[0])
+        preprocessed_b64 = image_to_base64(padded_canvas)
+        otsu_b64 = create_otsu_visualization(padded_canvas)
+
         return {
             "is_multiline": len(line_crops) > 1,
             "line_count": len(line_crops),
             "lines": line_preds,
-            "prediction": combined
+            "prediction": combined,
+            "preprocessed_image_base64": preprocessed_b64,
+            "otsu_image_base64": otsu_b64,
+            "line_crops_base64": line_crops_b64,
+            "tensor_shape": "[1, 3, 128, 512]"
         }
 
 

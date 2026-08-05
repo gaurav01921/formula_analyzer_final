@@ -211,6 +211,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response.ok && data.success) {
         renderPredictionResult(data.prediction);
+        
+        // Render Step 2: Image Pipeline & Preprocessing Visualizer
+        const pipelineCard = document.getElementById('pipeline-card');
+        const pipelineOrigImg = document.getElementById('pipeline-orig-img');
+        const pipelineOtsuImg = document.getElementById('pipeline-otsu-img');
+        const pipelineMeta = document.getElementById('pipeline-meta');
+
+        if (pipelineCard && (data.otsu_image_base64 || data.preprocessed_image_base64)) {
+          pipelineOrigImg.src = previewImg.src;
+          pipelineOtsuImg.src = data.otsu_image_base64 || data.preprocessed_image_base64;
+          pipelineMeta.textContent = `Tensor Shape: ${data.tensor_shape || '[1, 3, 128, 512]'} | Aspect-Ratio Padded & Normalized`;
+          pipelineCard.style.display = 'block';
+        }
+
         showToast('Formula recognized successfully!');
         setStatus('connected', 'Connected');
       } else {

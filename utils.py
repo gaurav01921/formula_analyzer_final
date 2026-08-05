@@ -3,6 +3,7 @@
 # Description: Preprocessing routines, image transforms, and search decoders (Greedy/Beam).
 # ==========================================================\n
 import io
+import base64
 import cv2
 import numpy as np
 import torch
@@ -63,6 +64,23 @@ def preprocess_image(image_input, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
     padded_image = resize_with_padding(image, target_size)
     tensor_image = predict_transform(padded_image).unsqueeze(0)  # Shape: (1, 3, H, W)
     return tensor_image, padded_image
+
+
+def image_to_base64(pil_img):
+    """Converts a PIL Image to a base64 data URL string."""
+    buffered = io.BytesIO()
+    pil_img.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return f"data:image/png;base64,{img_str}"
+
+
+def create_otsu_visualization(pil_img):
+    """Generates an inverted/Otsu binarized visualization canvas of the input tensor image."""
+    img_np = np.array(pil_img)
+    gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    res_img = Image.fromarray(thresh).convert("RGB")
+    return image_to_base64(res_img)
 
 
 def segment_formula_lines(image_input, padding=12, min_line_height=18):

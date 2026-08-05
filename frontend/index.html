@@ -148,6 +148,37 @@
 
     </div>
 
+    <!-- Step 2: Image Pipeline & Preprocessing Card -->
+    <section class="card pipeline-card" id="pipeline-card" style="display: none; margin-top: 2rem;">
+      <div class="pipeline-header">
+        <h3 class="card-title">
+          🖼️ Step 2: Image Pipeline & Preprocessing
+        </h3>
+        <span class="badge-active"><i class="fa-solid fa-circle-check"></i> Auto Dark-Mode & Otsu Active</span>
+      </div>
+
+      <div class="pipeline-grid">
+        <!-- Original Uploaded Image -->
+        <div class="pipeline-box">
+          <h4 class="pipeline-box-title">Original Uploaded Image</h4>
+          <div class="pipeline-img-wrap">
+            <img id="pipeline-orig-img" src="" alt="Original Uploaded Image">
+          </div>
+        </div>
+
+        <!-- Auto-Inverted & Otsu Normalized Tensor Input -->
+        <div class="pipeline-box">
+          <h4 class="pipeline-box-title">Auto-Inverted & Otsu Normalized Tensor Input</h4>
+          <div class="pipeline-img-wrap">
+            <img id="pipeline-otsu-img" src="" alt="Normalized Tensor Input Canvas">
+          </div>
+          <p class="pipeline-meta" id="pipeline-meta">
+            Tensor Shape: [1, 3, 128, 512] | Padded & Normalized for Model Encoder
+          </p>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- Toast Notification -->
