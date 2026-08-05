@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from predict import init_predictor, predict, get_predictor
+from predict import init_predictor, predict, get_predictor, predict_multiline
 
 # Directory configurations
 BASE_DIR = Path(__file__).resolve().parent
@@ -147,15 +147,14 @@ async def handle_prediction(
         with open(saved_file_path, "wb") as f:
             f.write(contents)
 
-        # Run Inference
-        prediction_str = predict(
+        # Run Multi-line segmentation & Inference
+        result = predict_multiline(
             str(saved_file_path),
             decode_method=decode_method,
             beam_size=beam_size
         )
 
         relative_image_url = f"/static/uploads/{unique_filename}"
-
         headers = {"ngrok-skip-browser-warning": "true"}
 
         return JSONResponse(
@@ -163,7 +162,10 @@ async def handle_prediction(
             headers=headers,
             content={
                 "success": True,
-                "prediction": prediction_str,
+                "prediction": result["prediction"],
+                "lines": result["lines"],
+                "is_multiline": result["is_multiline"],
+                "line_count": result["line_count"],
                 "filename": unique_filename,
                 "image_url": relative_image_url,
                 "decode_method": decode_method

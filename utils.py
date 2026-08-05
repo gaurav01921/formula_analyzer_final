@@ -3,6 +3,8 @@
 # Description: Preprocessing routines, image transforms, and search decoders (Greedy/Beam).
 # ==========================================================\n
 import io
+import cv2
+import numpy as np
 import torch
 import torch.nn.functional as F
 from PIL import Image
@@ -61,6 +63,71 @@ def preprocess_image(image_input, target_size=(IMAGE_WIDTH, IMAGE_HEIGHT)):
     padded_image = resize_with_padding(image, target_size)
     tensor_image = predict_transform(padded_image).unsqueeze(0)  # Shape: (1, 3, H, W)
     return tensor_image, padded_image
+
+
+def segment_formula_lines(image_input, padding=12, min_height=20, min_width=40):
+    """
+    OpenCV Line Segmenter: Detects individual formula lines in a multi-line image.
+    Crops each line into a standalone PIL Image.
+    
+    Args:
+        image_input (str, bytes, PIL.Image): Input image.
+        padding (int): Pixel margin added around each cropped bounding box.
+        min_height (int): Minimum height filter for noise.
+        min_width (int): Minimum width filter for noise.
+        
+    Returns:
+        list of PIL.Image: Cropped line sub-images ordered from top to bottom.
+    """
+    if isinstance(image_input, str):
+        pil_img = Image.open(image_input).convert("RGB")
+    elif isinstance(image_input, bytes):
+        pil_img = Image.open(io.BytesIO(image_input)).convert("RGB")
+    elif isinstance(image_input, Image.Image):
+        pil_img = image_input.convert("RGB")
+    else:
+        raise ValueError("Unsupported image input format.")
+
+    img_np = np.array(pil_img)
+    gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+    
+    # Binarize with Otsu thresholding
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    # Dilation with horizontal kernel to group characters on the same line
+    kernel_width = max(15, int(pil_img.width * 0.15))
+    h_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_width, 5))
+    dilated = cv2.dilate(thresh, h_kernel, iterations=2)
+    
+    contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    boxes = []
+    img_h, img_w = gray.shape
+    
+    for c in contours:
+        x, y, w, h = cv2.boundingRect(c)
+        if w >= min_width and h >= min_height and (w * h) >= (img_w * img_h * 0.015):
+            boxes.append((x, y, w, h))
+
+    # If 0 or 1 line box found, or box covers >85% of total area, return whole image
+    if len(boxes) <= 1:
+        return [pil_img]
+
+    # Sort boxes top to bottom
+    boxes = sorted(boxes, key=lambda b: b[1])
+
+    # Crop each line sub-image with padding
+    crops = []
+    for x, y, w, h in boxes:
+        x1 = max(0, x - padding)
+        y1 = max(0, y - padding)
+        x2 = min(img_w, x + w + padding)
+        y2 = min(img_h, y + h + padding)
+        
+        crop = pil_img.crop((x1, y1, x2, y2))
+        crops.append(crop)
+        
+    return crops
 
 
 def create_causal_mask(seq_len, device="cpu"):

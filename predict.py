@@ -6,7 +6,7 @@
 import os
 import torch
 from model import FormulaRecognizer, load_vocab_file
-from utils import preprocess_image, greedy_decode, beam_search_decode
+from utils import preprocess_image, greedy_decode, beam_search_decode, segment_formula_lines
 
 # Global Singleton Predictor Instance
 _PREDICTOR_INSTANCE = None
@@ -89,6 +89,32 @@ class ModelPredictor:
             )
         return prediction
 
+    def predict_multiline(self, image_input, decode_method="beam", beam_size=5):
+        """
+        Detects formula lines using OpenCV segmenter and predicts each line independently.
+        Returns a dict containing 'predictions' list and combined formula string.
+        """
+        line_crops = segment_formula_lines(image_input)
+        line_preds = []
+        for crop in line_crops:
+            pred = self.predict(crop, decode_method=decode_method, beam_size=beam_size)
+            if pred and pred.strip():
+                line_preds.append(pred.strip())
+        
+        if len(line_preds) > 1:
+            combined = " \\\\ \n".join(line_preds)
+        elif len(line_preds) == 1:
+            combined = line_preds[0]
+        else:
+            combined = ""
+            
+        return {
+            "is_multiline": len(line_crops) > 1,
+            "line_count": len(line_crops),
+            "lines": line_preds,
+            "prediction": combined
+        }
+
 
 def init_predictor(model_path="weights/best_model.pth", vocab_path="weights/vocab.pkl"):
     """Initializes global singleton predictor during application startup."""
@@ -113,3 +139,11 @@ def predict(image_path, decode_method="beam", beam_size=5):
     """
     predictor = get_predictor()
     return predictor.predict(image_path, decode_method=decode_method, beam_size=beam_size)
+
+
+def predict_multiline(image_path, decode_method="beam", beam_size=5):
+    """
+    Multi-line prediction wrapper returning structured predictions dictionary.
+    """
+    predictor = get_predictor()
+    return predictor.predict_multiline(image_path, decode_method=decode_method, beam_size=beam_size)
