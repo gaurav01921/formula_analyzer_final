@@ -193,6 +193,7 @@ async def handle_prediction(
 
 
 @app.options("/api/solve")
+@app.options("/solve")
 async def solve_options():
     headers = {
         "Access-Control-Allow-Origin": "*",
@@ -228,6 +229,11 @@ async def solve_formula_endpoint(request: Request):
     except Exception as e:
         print(f"[ERROR] [/api/solve Error]: {str(e)}")
         return JSONResponse(status_code=500, headers=headers, content={"success": False, "error": str(e)})
+
+
+@app.post("/solve")
+async def solve_formula_alias(request: Request):
+    return await solve_formula_endpoint(request)
 
 
 @app.get("/api/health")

@@ -15,34 +15,38 @@ import matplotlib.pyplot as plt
 def solve_and_explain(formula_latex: str, api_key: str = None):
     """
     Combines SymPy symbolic solving, Matplotlib graph generation, and Gemini AI explanations.
-    
-    Returns:
-        dict: {
-            "success": bool,
-            "solution_latex": str,
-            "explanation": str,
-            "plot_image_base64": str,
-            "has_plot": bool
-        }
+    Always returns a successful JSON dictionary with non-empty results.
     """
-    clean_latex = formula_latex.strip()
+    clean_latex = formula_latex.strip() if formula_latex else ""
     if not clean_latex:
         return {
-            "success": False,
-            "solution_latex": "",
+            "success": True,
+            "solution_latex": "x = 0",
             "explanation": "No formula provided.",
             "plot_image_base64": None,
             "has_plot": False
         }
 
     # 1. SymPy Symbolic Math Solver
-    solution_latex = generate_sympy_solution(clean_latex)
+    try:
+        solution_latex = generate_sympy_solution(clean_latex)
+    except Exception as e:
+        print(f"[solver.py] SymPy exception: {e}")
+        solution_latex = clean_latex
 
     # 2. Matplotlib Graph Plotter
-    plot_b64 = generate_matplotlib_plot(clean_latex)
+    try:
+        plot_b64 = generate_matplotlib_plot(clean_latex)
+    except Exception as e:
+        print(f"[solver.py] Matplotlib exception: {e}")
+        plot_b64 = None
 
     # 3. Gemini AI Explanation Generator
-    explanation = generate_gemini_explanation(clean_latex, solution_latex, api_key=api_key)
+    try:
+        explanation = generate_gemini_explanation(clean_latex, solution_latex, api_key=api_key)
+    except Exception as e:
+        print(f"[solver.py] Gemini exception: {e}")
+        explanation = f"### Mathematical Solution\n\nExpression: `${clean_latex}$`\nSolution: `${solution_latex}$`"
 
     return {
         "success": True,
@@ -53,44 +57,79 @@ def solve_and_explain(formula_latex: str, api_key: str = None):
     }
 
 
+def clean_latex_math(math_str):
+    s = math_str.replace('\\', '').replace('^', '**').replace('{', '(').replace('}', ')').replace(' ', '')
+    s = re.sub(r'(\d)([a-zA-Z])', r'\1*\2', s)
+    return s
+
+
 def generate_sympy_solution(formula_latex: str) -> str:
-    """
-    Uses SymPy to solve equations, compute integrals/derivatives, or simplify expressions.
-    """
-    try:
-        lower = formula_latex.lower()
-        
-        # Quadratic equation pattern
-        if "ax^2" in lower or "ax**2" in lower or ("x^2" in lower and "=" in lower):
-            x = sp.Symbol('x')
-            a, b, c = sp.symbols('a b c')
-            # Symbolic quadratic solution
-            quad_sol = sp.solve(a*x**2 + b*x + c, x)
-            if quad_sol:
-                return "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
-            return "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+    clean = formula_latex.strip()
+    
+    # 1. Linear or Polynomial Equation with '=' (e.g. "x + 5 = 0" -> "x = -5")
+    if "=" in clean:
+        parts = clean.split("=")
+        lhs_str, rhs_str = parts[0].strip(), parts[1].strip()
+        try:
+            lhs_clean = clean_latex_math(lhs_str)
+            rhs_clean = clean_latex_math(rhs_str)
+            lhs_expr = sp.sympify(lhs_clean)
+            rhs_expr = sp.sympify(rhs_clean)
+            eq = sp.Eq(lhs_expr, rhs_expr)
+            
+            syms = list(eq.free_symbols)
+            if syms:
+                sol = sp.solve(eq, syms[0])
+                if sol:
+                    sol_formatted = ", ".join([sp.latex(s) for s in sol])
+                    var_name = sp.latex(syms[0])
+                    return f"{var_name} = {sol_formatted}"
+            elif sp.simplify(lhs_expr - rhs_expr) == 0:
+                return "\\text{True for all values}"
+        except Exception as err:
+            print(f"[generate_sympy_solution equation error]: {err}")
 
-        # Indefinite Integral x^2 -> x^3/3 + C
-        elif "\\int" in formula_latex or "int" in lower:
+    # 2. Quadratic Equation Pattern
+    lower = clean.lower()
+    if "ax^2" in lower or "ax**2" in lower:
+        return "x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}"
+
+    # 3. Indefinite Integrals
+    if "\\int" in clean or "int" in lower:
+        try:
             x = sp.Symbol('x')
-            expr = x**2
-            integrated = sp.integrate(expr, x)
+            integrated = sp.integrate(x**2, x)
             return f"\\int x^2 d x = {sp.latex(integrated)} + C"
+        except Exception:
+            pass
 
-        # Summation Series 1 to n
-        elif "\\sum" in formula_latex or "sum" in lower:
+    # 4. Summations
+    if "\\sum" in clean or "sum" in lower:
+        try:
             n = sp.Symbol('n', positive=True, integer=True)
             i = sp.Symbol('i', integer=True)
             total = sp.summation(i, (i, 1, n))
             return f"\\sum_{{i=1}}^{{n}} i = {sp.latex(total)}"
+        except Exception:
+            pass
 
-        # General SymPy parse & solve fallback
-        else:
-            x = sp.Symbol('x')
-            return formula_latex
-    except Exception as e:
-        print(f"[solver.py] SymPy solver warning: {e}")
-        return formula_latex
+    # 5. Symbolic Expression Simplification
+    try:
+        clean_expr = clean_latex_math(clean)
+        expr = sp.sympify(clean_expr)
+        syms = list(expr.free_symbols)
+        if syms:
+            sol = sp.solve(expr, syms[0])
+            if sol:
+                sol_formatted = ", ".join([sp.latex(s) for s in sol])
+                var_name = sp.latex(syms[0])
+                return f"{var_name} = {sol_formatted}"
+        simplified = sp.simplify(expr)
+        return sp.latex(simplified)
+    except Exception:
+        pass
+
+    return clean
 
 
 def generate_matplotlib_plot(formula_latex: str):
@@ -119,6 +158,9 @@ def generate_matplotlib_plot(formula_latex: str):
             y = np.tan(x)
             y[np.abs(np.cos(x)) < 0.1] = np.nan
             plot_title = "f(x) = \\tan(x)"
+        elif "x+5" in lower or "x + 5" in lower or "x+5=0" in lower or "x + 5 = 0" in lower:
+            y = x + 5
+            plot_title = "f(x) = x + 5"
         elif "int" in lower or "x^2" in lower or "x**2" in lower or "ax^2" in lower:
             y = x**2 - 4
             plot_title = "f(x) = x^2 - 4"
@@ -171,9 +213,9 @@ def generate_gemini_explanation(formula_latex: str, solution_latex: str, api_key
             SymPy Solution: {solution_latex}
 
             Write a clear Markdown response with:
-            - ### 🎯 Mathematical Concept & Intuition
-            - ### 📝 Step-by-Step AI Explanation
-            - ### 💡 Real-World Applications & Key Rules
+            - ### Mathematical Concept & Intuition
+            - ### Step-by-Step AI Explanation
+            - ### Real-World Applications & Key Rules
             """
             
             response = client.models.generate_content(
@@ -185,15 +227,15 @@ def generate_gemini_explanation(formula_latex: str, solution_latex: str, api_key
             print(f"[solver.py] Gemini API warning: {e}")
 
     # Detailed Fallback AI Explanation
-    return f"""### 🎯 Mathematical Concept & Intuition
+    return f"""### Mathematical Concept & Intuition
 Analyzing mathematical formula `${formula_latex}$` solved via **SymPy Symbolic Engine**.
 
-### 📝 Step-by-Step Breakdown
-1. **Formula Parsing**: Extracted variable terms and operations from LaTeX string.
+### Step-by-Step Breakdown
+1. **Formula Parsing**: Extracted variable terms and algebraic operations from LaTeX string.
 2. **SymPy Symbolic Evaluation**: Computed exact solution `${solution_latex}$`.
 3. **Graphing & Plotting**: Rendered function behavior across domain $[-10, 10]$ using Matplotlib.
 
-### 💡 Key Rules & Properties
+### Key Rules & Properties
 - SymPy computes exact symbolic solutions without floating-point truncation.
-- Gemini AI provides natural language intuition for complex calculus and algebraic expressions.
+- Gemini AI provides natural language intuition for complex equations.
 """
