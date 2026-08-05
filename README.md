@@ -1,237 +1,220 @@
-# Handwritten Mathematical Formula Recognition System
+# Handwritten Formula Analyzer
 
-This project turns a photo of a handwritten math formula into clean LaTeX text and renders the result in the browser. It combines a neural network model with a lightweight FastAPI backend and a simple web frontend so you can upload an image, get a prediction, and immediately see the rendered formula.
-
----
-
-## 🌟 What This Project Does
-
-- Accepts handwritten formula images via a web frontend or API.
-- Preprocesses the image and normalizes it to the model input shape.
-- Uses an EfficientNet-based encoder and a Transformer decoder to predict LaTeX tokens.
-- Supports both greedy decoding and beam search.
-- Handles multi-line formulas by splitting the image into line crops and predicting each line independently.
-- Renders the predicted LaTeX with MathJax so users can see the equation instantly.
+An end-to-end artificial intelligence and computer vision platform that converts handwritten mathematical equations from notebook paper photos into clean, copy-ready LaTeX code, evaluates exact symbolic solutions with SymPy, plots function curves using Matplotlib, and provides step-by-step pedagogical explanations powered by Gemini AI.
 
 ---
 
-## 🧠 System Architecture
+## 🤖 About our AI
 
-This app is built around three main layers:
+Recognizing handwritten mathematical expressions is one of the most intriguing challenges in computer vision and artificial intelligence. Unlike standard text documents—where words flow linearly from left to right—mathematical formulas are inherently two-dimensional. A single handwritten expression can combine nested fractions, exponents, subscripts, square roots, Greek letters, and summation limits, where the spatial arrangement of symbols carries as much meaning as the symbols themselves.
 
-1. **User Interface**
-   - Browser-based frontend served from `templates/index.html`.
-   - Uses JavaScript in `static/js/script.js` to upload images, display progress, and show rendered formulas.
-   - Saves uploaded files under `static/uploads/` for convenient preview.
+Traditional Optical Character Recognition (OCR) engines struggle with mathematical notation because they fail to capture these non-linear spatial dependencies. 
 
-2. **Backend API**
-   - `app/main.py` runs FastAPI and exposes routes like `/` and `/predict`.
-   - It mounts static files, renders templates, validates image uploads, and returns JSON results.
-   - The backend initializes the model once on startup so inference stays fast.
-
-3. **Model + Prediction Engine**
-   - `model.py` defines the neural network: EfficientNet-B0 encoder + Transformer decoder.
-   - `predict.py` loads the model checkpoint and vocabulary, then wraps prediction logic in a singleton.
-   - `utils.py` handles image resizing, preprocessing, line segmentation, and decoder algorithms.
+To solve this, our system employs a hybrid **CRNN + Transformer Decoder** architecture:
+- **Vision Encoder (EfficientNet-B0)**: Acts as the visual eyes of the system. Fine-tuned via transfer learning, it extracts multi-scale spatial feature maps from raw handwritten strokes while suppressing notebook line noise.
+- **Sinusoidal Positional Embeddings**: Encodes 2D spatial positions so the model understands symbol placement (such as recognizing whether a character is an exponent $x^2$ or a subscript $x_2$).
+- **Sequence Decoder (Transformer)**: Uses multi-head self-attention over a 241-token mathematical vocabulary to decode LaTeX expressions token-by-token. Using **Beam Search decoding ($k=5$)**, it evaluates multiple candidate sequences simultaneously to pick the most grammatically coherent mathematical formula.
 
 ---
 
-## 🔁 Model Flow
+## 📌 Project Overview
 
-Here is how a single image flows through the system:
+**Handwritten Formula Analyzer** provides a complete pipeline for recognizing, editing, solving, and understanding handwritten mathematical content.
 
-1. User uploads an image from the browser.
-2. FastAPI receives the upload and validates its file type and size.
-3. The image is saved into `static/uploads/` with a unique filename.
-4. `predict_multiline()` in `predict.py` begins inference:
-   - `segment_formula_lines()` detects one or more handwritten formula lines.
-   - Each line crop is preprocessed with `preprocess_image()`.
-   - The model encodes the image using EfficientNet-B0 and decodes tokens with the Transformer.
-   - `beam_search_decode()` or `greedy_decode()` generates the final LaTeX.
-5. The API returns the combined prediction string plus metadata and visual debug images.
-6. The frontend displays the predicted formula and renders it with MathJax.
+1. **Image Upload & Line Segmentation**: Users can upload any photo or notebook snapshot. OpenCV uses Adaptive Gaussian Thresholding and Horizontal Projection Profiling (HPP) to isolate dark ink strokes and segment multi-line stacked equations.
+2. **Neural LaTeX Generation**: The preprocessed image tensor ($128 \times 512$) is passed through the PyTorch model to generate formatted LaTeX code.
+3. **Interactive KaTeX Editor**: Rendered instantly in the browser using KaTeX, users can edit or refine the recognized LaTeX in real-time.
+4. **Symbolic Math Solver (SymPy)**: Computes exact symbolic solutions for linear equations, quadratic roots, indefinite integrals, and summations.
+5. **Function Curve Plotter (Matplotlib)**: Automatically generates dark-mode function curve graphs ($x \in [-10, 10]$) exported as high-resolution base64 data URLs.
+6. **AI Concept Breakdown (Gemini AI)**: Generates step-by-step educational explanations and real-world mathematical intuition powered by `gemini-2.5-flash`.
 
 ---
 
-## 🧩 Task Flow
+## 🎯 Objectives
 
-The app is designed around these tasks:
+- **High Accuracy Recognition**: Achieve high token-level accuracy on complex handwritten mathematical expressions from the HME100K dataset.
+- **Robust Preprocessing**: Automatically handle real-world noise, such as lined notebook paper, uneven lighting, and variable handwriting styles.
+- **End-to-End Learning Tool**: Go beyond simple OCR by integrating symbolic math solving, graphing, and AI explanations into a single web application.
+- **Low Latency & High Performance**: Provide fast neural inference using lightweight EfficientNet-B0 feature extraction and FastAPI backend deployment.
+- **Seamless Accessibility**: Deliver a zero-dependency, responsive web interface accessible across desktop, tablet, and mobile browsers.
+
+---
+
+## ✨ Key Features
+
+- 📷 **Smart Image Preprocessing**: Automatic background binarization via Otsu thresholding and line cropping with Horizontal Projection Profiling.
+- ⚡ **CRNN + Transformer Model**: Vision encoder paired with a 4-layer, 8-head Transformer Decoder trained on 241 LaTeX tokens.
+- 🎯 **Flexible Decoding Modes**: Choose between **Greedy Search** for instant results or **Beam Search ($k=5$)** for maximum accuracy.
+- ✏️ **Live Interactive LaTeX Editor**: Edit recognized LaTeX code with real-time KaTeX rendering.
+- 🧮 **SymPy Symbolic Engine**: Evaluates exact roots (e.g. $x+5=0 \implies x=-5$), integrals ($\int x^2 dx = \frac{x^3}{3} + C$), and summations.
+- 📈 **Matplotlib Dark-Mode Grapher**: Visualizes mathematical function curves on a dark background.
+- 🧠 **Gemini AI Pedagogical Explanations**: Generates step-by-step mathematical intuition and derivations.
+- 🛡️ **Fail-Safe Client-Side Solver**: Integrated client-side mathematical solver fallback ensuring the **Solve** button always succeeds even if offline.
+- 📜 **Local Recognition History**: Automatically saves up to 30 past predictions to `localStorage` with thumbnails, time stamps, and copy/delete actions.
+- 🎨 **Modern Glassmorphism UI**: Beautiful dark-mode interface built with CSS design tokens, animated progress steppers, and responsive tab navigation.
+
+---
+
+## 🏗️ End-to-End System Architecture
 
 ```text
-+-------------------------------+
-|          Startup              |
-|-------------------------------|
-| Load FastAPI and model once   |
-| with `init_predictor()`       |
-+---------------+---------------+
-                |
-                v
-+-------------------------------+
-|     Upload & Validation       |
-|-------------------------------|
-| Validate file type and size   |
-| Save image to uploads folder  |
-+---------------+---------------+
-                |
-                v
-+-------------------------------+
-|         Segmentation          |
-|-------------------------------|
-| Detect handwritten formula    |
-| lines and crop each line      |
-+---------------+---------------+
-                |
-                v
-+-------------------------------+
-|          Inference            |
-|-------------------------------|
-| Preprocess each crop and      |
-| decode with greedy or beam    |
-+---------------+---------------+
-                |
-                v
-+-------------------------------+
-|           Output              |
-|-------------------------------|
-| Combine results, return JSON, |
-| render LaTeX on frontend      |
-+-------------------------------+
+  ┌─────────────────┐
+  │ User Uploads    │ (Notebook paper / Scanned Image)
+  │ Formula Image   │
+  └────────┬────────┘
+           │
+           v
+  ┌─────────────────┐
+  │ OpenCV          │  - Adaptive Gaussian Thresholding
+  │ Preprocessing   │  - Horizontal Projection Profiling (HPP) Line Crop
+  │ & Line Crop     │  - Binarization & Tensor Normalization [1, 3, 128, 512]
+  └────────┬────────┘
+           │
+           v
+  ┌─────────────────┐
+  │ PyTorch Model   │  - EfficientNet-B0 Spatial Feature Extractor
+  │ Encoder-Decoder │  - 1x1 Conv Projection (d_model=256)
+  │ Inference       │  - 4-Layer Transformer Decoder (8 Heads)
+  │                 │  - Beam Search Decoding (k=5)
+  └────────┬────────┘
+           │
+           v
+  ┌─────────────────┐
+  │ Recognized      │  - Raw LaTeX Output: \int x^2 dx
+  │ LaTeX Code      │  - Real-Time KaTeX Math Rendering
+  └────────┬────────┘
+           │
+           v
+  ┌─────────────────┬───────────────────┬──────────────────┐
+  │                 │                   │                  │
+  v                 v                   v                  v
+┌───────────┐ ┌──────────────┐ ┌─────────────────┐ ┌────────────────┐
+│ KaTeX     │ │ SymPy Engine │ │ Matplotlib      │ │ Gemini AI      │
+│ Live      │ │ Symbolic     │ │ Dark-Mode       │ │ Step-by-Step   │
+│ Editor    │ │ Solver       │ │ Curve Plotter   │ │ Explanation    │
+└───────────┘ └──────────────┘ └─────────────────┘ └────────────────┘
 ```
-
-- **Startup**
-  - `app/main.py` initializes FastAPI and loads the model once using `init_predictor()`.
-  - The vocabulary and weights are loaded into CPU/GPU memory.
-
-- **Upload & Validation**
-  - The `/predict` endpoint verifies the image extension and maximum size.
-  - The uploaded image is stored safely with a timestamped filename.
-
-- **Segmentation**
-  - If the image contains multiple formula lines, the app splits it into separate crops.
-  - This improves accuracy for stacked expressions.
-
-- **Inference**
-  - Each cropped line is converted to a tensor and run through the model.
-  - The decoder builds the LaTeX sequence token-by-token.
-
-- **Output**
-  - Predictions are joined into a final string.
-  - The API returns JSON with `prediction`, `lines`, `image_url`, and optional debug images.
-  - The frontend renders both LaTeX text and the formatted equation.
 
 ---
 
-## 📁 Project Structure
+## 🛠️ Tech Stack
+
+| Category | Technologies & Tools |
+| :--- | :--- |
+| **Core Language** | Python 3.10+ |
+| **Deep Learning** | PyTorch, torchvision, EfficientNet-B0 (Transfer Learning), Transformer Decoder |
+| **Computer Vision** | OpenCV (`cv2`), NumPy, Pillow (`PIL`) |
+| **Symbolic Math & Graphing** | SymPy, Matplotlib |
+| **AI Explanation Engine** | Google Gemini API (`google-genai` / `gemini-2.5-flash`) |
+| **Backend Framework** | FastAPI, Uvicorn, Pydantic |
+| **Frontend UI** | HTML5, Vanilla CSS3 (Design Tokens), Vanilla JS (ES6+), FontAwesome 6 |
+| **Math Rendering** | KaTeX 0.16.8 |
+| **Deployment & Cloud** | Vercel Edge CDN, Ngrok Secure HTTPS Tunnel |
+
+---
+
+## 📁 Repo Structure
 
 ```text
 handwrittenformulaanalyzer/
-│
-├── app/
-│   ├── api/
-│   │   └── routes.py              # FastAPI route definitions and app endpoint logic
-│   ├── models/
-│   │   ├── model.py               # Encoder/Decoder architecture and vocabulary loader
-│   │   ├── predict.py             # Singleton predictor and inference wrappers
-│   │   └── solver.py              # SymPy solver, plotting, and Gemini explanation logic
-│   ├── preprocessing/
-│   │   ├── image_processing.py    # Image preprocessing / tensor conversion
-│   │   └── segmentation.py        # OpenCV formula line segmentation
-│   ├── utils/
-│   │   └── utils.py               # Greedy/beam search and decoder utilities
-│   ├── static/
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── uploads/
-│   ├── templates/
-│   └── main.py                    # FastAPI entrypoint
-├── notebooks/
-│   ├── train.ipynb
-│   └── predict.ipynb
+├── app.py                     # Main FastAPI server with /api/predict & /api/solve routes
+├── predict.py                 # FormulaPredictor singleton & Beam/Greedy decoding logic
+├── solver.py                  # SymPy symbolic solver, Matplotlib grapher & Gemini AI engine
+├── utils.py                   # OpenCV image preprocessing & line segmentation (HPP)
+├── model.py                   # PyTorch FormulaRecognizer model architecture
+├── dataset.py                 # PyTorch Dataset loader & vocab mapping utilities
 ├── weights/
-│   ├── best_model.pth
-│   └── vocab.pkl
-├── dataset/
-├── checkpoints/
-├── frontend/
-├── requirements.txt
-├── README.md
-├── DEPLOYMENT_GUIDE.md
-├── .gitignore
-``` 
+│   ├── best_model.pth         # Pretrained PyTorch model checkpoint (~110 MB)
+│   └── vocab.pkl              # Token vocabulary pickle file (241 tokens)
+├── frontend/                  # Vercel Production Frontend
+│   ├── index.html             # Single Page Application HTML (Analyzer, History, About)
+│   ├── css/
+│   │   └── style.css          # Glassmorphism dark-mode design system & animations
+│   └── js/
+│       └── app.js             # Client application logic, KaTeX editor & LocalStorage history
+├── static/                    # FastAPI Static Assets
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       └── app.js
+├── templates/
+│   └── index.html             # FastAPI Jinja2 template
+├── vercel.json                # Vercel production deployment configuration
+├── requirements.txt           # Python dependencies manifest
+└── README.md                  # Project documentation
+```
 
 ---
 
-## 🛠️ Installation & Setup
+## ⚙️ Installation and Local Setup
 
 ### Prerequisites
-- Python 3.9 or higher
-- Optional: CUDA-enabled GPU for faster inference
 
-### Install dependencies
+- **Python**: Version 3.10 or higher
+- **Git**: Installed on your system
+- **Pip**: Latest Python package installer
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/gaurav01921/formula_analyzer.git
+cd formula_analyzer
+```
+
+### Step 2: Create a Virtual Environment
+
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### Step 3: Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
+### Step 4: Verify Weights & Vocabulary
+
+Ensure model weights exist in the `weights/` directory:
+- `weights/best_model.pth`
+- `weights/vocab.pkl`
+
 ---
 
-## 🚀 Run Locally
+## 🚀 Quick Start Guide
 
-Start the app using Uvicorn directly:
+### 1. Run the FastAPI Server Locally
+
+Start the backend server on `http://127.0.0.1:8000`:
 
 ```bash
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+python -m uvicorn app:app --host 127.0.0.1 --port 8000 --reload
 ```
 
-Then open:
+Open your browser and navigate to `http://127.0.0.1:8000`.
 
-**`http://127.0.0.1:8000`**
+### 2. Test Formula Recognition
 
----
+1. Drag and drop a handwritten formula image (or click one of the **Sample Formula Presets** like `Integral \int x^2 dx`).
+2. Select your preferred decoding method (**Beam Search** recommended for best accuracy).
+3. Click **Recognize Formula**.
+4. View the step-by-step progress, Otsu binarized canvas, and rendered KaTeX equation.
 
-## 🔌 API Endpoint
+### 3. Solve & Plot Equations
 
-### `POST /predict`
-
-Accepts an uploaded image and returns the recognized LaTeX prediction.
-
-**Request:** `multipart/form-data`
-- `file`: handwritten formula image file
-- `decode_method` (optional): `beam` or `greedy`
-- `beam_size` (optional): integer beam width
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "prediction": "\\frac{5}{14}=\\frac{1}{x}",
-  "lines": ["\\frac{5}{14}=\\frac{1}{x}"],
-  "is_multiline": false,
-  "line_count": 1,
-  "filename": "formula_...png",
-  "image_url": "/static/uploads/formula_...png",
-  "decode_method": "beam"
-}
-```
+1. Modify or edit the recognized formula in the **Edit Formula LaTeX Code** box.
+2. Click **⚡ Solve**.
+3. View the 3 dedicated result sections:
+   - ⚡ **SymPy Mathematical Solution**
+   - 📈 **Matplotlib Function Graph**
+   - 🧠 **Gemini AI Concept Explanation**
 
 ---
 
-## 🧪 Notes
-
-- Model weights are loaded once at startup for fast inference.
-- Multi-line prediction is supported by segmenting the input into line crops.
-- The app returns optional debug visualizations for preprocessed images and binarized line crops.
-
----
-
-## ✨ Improvements You Can Make
-
-- Add support for more upload formats or a drag-and-drop UI.
-- Improve the line segmentation algorithm for dense handwritten math.
-- Add a training script to fine-tune the model on new formula datasets.
-
----
-
-## 📜 License
-This repository is for the Handwritten Mathematical Formula Recognition System.
+Developed with ❤️ using **PyTorch**, **FastAPI**, **SymPy**, **Matplotlib**, and **KaTeX**.
