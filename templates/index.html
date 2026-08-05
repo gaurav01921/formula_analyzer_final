@@ -175,22 +175,25 @@
 
     </div>
 
-    <!-- Step 2: Image Pipeline & Preprocessing Card -->
+    <!-- Step 2: Image Pipeline & Preprocessing Card Section -->
     <section class="card pipeline-card" id="pipeline-card" style="display: none; margin-top: 2rem;">
       <div class="pipeline-header">
-        <h3 class="card-title">
+        <h3 class="card-title" style="margin-bottom: 0;">
           🖼️ Step 2: Image Pipeline & Preprocessing
         </h3>
         <span class="badge-active"><i class="fa-solid fa-circle-check"></i> Auto Dark-Mode & Otsu Active</span>
       </div>
 
-      <div class="pipeline-grid">
+      <div class="pipeline-grid" style="margin-top: 1.25rem;">
         <!-- Original Uploaded Image -->
         <div class="pipeline-box">
           <h4 class="pipeline-box-title">Original Uploaded Image</h4>
           <div class="pipeline-img-wrap">
             <img id="pipeline-orig-img" src="" alt="Original Uploaded Image">
           </div>
+          <p class="pipeline-meta" id="pipeline-orig-meta">
+            Dimensions: 512 × 128 px | Format: image/png
+          </p>
         </div>
 
         <!-- Auto-Inverted & Otsu Normalized Tensor Input -->

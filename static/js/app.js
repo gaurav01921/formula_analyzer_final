@@ -253,11 +253,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const pipelineOrigImg = document.getElementById('pipeline-orig-img');
         const pipelineOtsuImg = document.getElementById('pipeline-otsu-img');
         const pipelineMeta = document.getElementById('pipeline-meta');
+        const pipelineOrigMeta = document.getElementById('pipeline-orig-meta');
 
         if (pipelineCard && (data.otsu_image_base64 || data.preprocessed_image_base64)) {
           pipelineOrigImg.src = previewImg.src;
           pipelineOtsuImg.src = data.otsu_image_base64 || data.preprocessed_image_base64;
-          pipelineMeta.textContent = `Tensor Shape: ${data.tensor_shape || '[1, 3, 128, 512]'} | Aspect-Ratio Padded & Normalized`;
+          
+          const origW = previewImg.naturalWidth || 897;
+          const origH = previewImg.naturalHeight || 271;
+          const fmt = selectedFile ? selectedFile.type : 'image/png';
+          
+          if (pipelineOrigMeta) {
+            pipelineOrigMeta.textContent = `Dimensions: ${origW} × ${origH} px | Format: ${fmt}`;
+          }
+
+          pipelineMeta.textContent = `Tensor Shape: ${data.tensor_shape || '[1, 3, 128, 512]'} | Padded & Normalized for Model Encoder`;
           pipelineCard.style.display = 'block';
           pipelineCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
