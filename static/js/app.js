@@ -274,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showToast('Formula recognized successfully!');
         setStatus('connected', 'Connected');
+        saveToHistory(data.prediction, previewImg.src);
       } else {
         clearTimeout(t2);
         clearTimeout(t3);
@@ -292,6 +293,124 @@ document.addEventListener('DOMContentLoaded', () => {
       btnPredict.innerHTML = `<i class="fa-solid fa-bolt"></i> Recognize Formula`;
     }
   });
+
+  // Tab Navigation Handler
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const tabPages = document.querySelectorAll('.tab-page');
+
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.getAttribute('data-tab');
+      navBtns.forEach(b => b.classList.remove('active'));
+      tabPages.forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      const targetPage = document.getElementById(`tab-${targetTab}`);
+      if (targetPage) {
+        targetPage.classList.add('active');
+      }
+
+      if (targetTab === 'history') {
+        renderHistoryList();
+      }
+    });
+  });
+
+  // LocalStorage History Helpers
+  function saveToHistory(formulaStr, imageSrc) {
+    if (!formulaStr) return;
+    let history = JSON.parse(localStorage.getItem('formula_analyzer_history') || '[]');
+    const newItem = {
+      id: Date.now(),
+      timestamp: new Date().toLocaleString(),
+      formula: formulaStr,
+      image: imageSrc || ''
+    };
+    history.unshift(newItem);
+    if (history.length > 30) history = history.slice(0, 30);
+    localStorage.setItem('formula_analyzer_history', JSON.stringify(history));
+  }
+
+  function renderHistoryList() {
+    const historyGrid = document.getElementById('history-grid');
+    if (!historyGrid) return;
+
+    let history = JSON.parse(localStorage.getItem('formula_analyzer_history') || '[]');
+    if (history.length === 0) {
+      historyGrid.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-subtle);">
+          <i class="fa-solid fa-clock-rotate-left" style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.5;"></i>
+          <p style="font-size: 1.1rem; font-weight: 600; color: var(--text-muted);">No Formula History Yet</p>
+          <p style="font-size: 0.88rem; margin-top: 0.3rem;">Recognized mathematical formulas will automatically appear here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    historyGrid.innerHTML = '';
+    history.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'history-card';
+      card.innerHTML = `
+        <div class="history-time">
+          <i class="fa-regular fa-clock"></i> ${item.timestamp}
+        </div>
+        ${item.image ? `<div style="height:80px; text-align:center; background:#000; border-radius:var(--radius-sm); padding:0.25rem;"><img src="${item.image}" style="max-height:100%; max-width:100%; object-fit:contain;"></div>` : ''}
+        <div class="history-math" id="hist-math-${item.id}"></div>
+        <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--accent-cyan); background:rgba(0,0,0,0.3); padding:0.4rem; border-radius:4px; word-break:break-all;">
+          ${item.formula}
+        </div>
+        <div style="display:flex; gap:0.5rem; margin-top:0.25rem;">
+          <button class="btn-copy" style="flex:1; font-size:0.8rem; padding:0.4rem;" data-copy="${encodeURIComponent(item.formula)}">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+          <button class="btn-remove" style="padding:0.4rem 0.75rem; font-size:0.8rem;" data-delete="${item.id}">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      `;
+      historyGrid.appendChild(card);
+
+      // Render KaTeX for history item
+      const mathBox = card.querySelector(`#hist-math-${item.id}`);
+      if (window.katex && mathBox) {
+        try {
+          katex.render(item.formula, mathBox, { displayMode: true, throwOnError: false });
+        } catch (err) {
+          mathBox.textContent = item.formula;
+        }
+      }
+    });
+
+    // Attach copy & delete handlers
+    historyGrid.querySelectorAll('[data-copy]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const text = decodeURIComponent(btn.getAttribute('data-copy'));
+        navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+      });
+    });
+
+    historyGrid.querySelectorAll('[data-delete]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idToDelete = parseInt(btn.getAttribute('data-delete'), 10);
+        let history = JSON.parse(localStorage.getItem('formula_analyzer_history') || '[]');
+        history = history.filter(h => h.id !== idToDelete);
+        localStorage.setItem('formula_analyzer_history', JSON.stringify(history));
+        renderHistoryList();
+        showToast('History item deleted.');
+      });
+    });
+  }
+
+  // Clear All History Button
+  const btnClearHistory = document.getElementById('btn-clear-history');
+  if (btnClearHistory) {
+    btnClearHistory.addEventListener('click', () => {
+      localStorage.removeItem('formula_analyzer_history');
+      renderHistoryList();
+      showToast('All recognition history cleared.');
+    });
+  }
 
   // DOM Elements for Editor & AI Solver
   const latexEditorInput = document.getElementById('latex-editor-input');

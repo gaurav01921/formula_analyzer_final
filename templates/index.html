@@ -31,8 +31,21 @@
       </div>
       <div class="brand-text">
         <h1>Formula Analyzer AI</h1>
-        <span>FastAPI + PyTorch + Vercel</span>
+        <span>FastAPI + PyTorch + SymPy</span>
       </div>
+    </div>
+
+    <!-- Navigation Menu Links -->
+    <div class="nav-links">
+      <button class="nav-btn active" data-tab="analyzer">
+        <i class="fa-solid fa-calculator"></i> Analyzer
+      </button>
+      <button class="nav-btn" data-tab="history">
+        <i class="fa-solid fa-clock-rotate-left"></i> History
+      </button>
+      <button class="nav-btn" data-tab="about-sic">
+        <i class="fa-solid fa-graduation-cap"></i> About Project (SIC)
+      </button>
     </div>
 
     <!-- Ngrok / Backend Tunnel Config -->
@@ -56,120 +69,128 @@
 
   <!-- Main Content Container -->
   <main class="container">
-    
-    <!-- Hero Title -->
-    <header class="hero-header">
-      <h2 class="hero-title">Handwritten LaTeX Formula Recognition</h2>
-      <p class="hero-subtitle">Upload or draw any handwritten mathematical equation to extract accurate, copy-ready LaTeX code powered by Deep Learning.</p>
-    </header>
 
-    <!-- Pipeline Stepper & Animated Progress Bar -->
-    <div class="stepper-container" id="stepper-container">
-      <div class="progress-track">
-        <div class="progress-fill" id="progress-fill"></div>
-      </div>
+    <!-- Tab Page 1: Formula Analyzer (Main App) -->
+    <div class="tab-page active" id="tab-analyzer">
       
-      <div class="step-item active" id="step-1">
-        <div class="step-node"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-        <span class="step-label">1. Upload Image</span>
-      </div>
-      
-      <div class="step-item" id="step-2">
-        <div class="step-node"><i class="fa-solid fa-image"></i></div>
-        <span class="step-label">2. Preprocess & Otsu</span>
-      </div>
-      
-      <div class="step-item" id="step-3">
-        <div class="step-node"><i class="fa-solid fa-microchip"></i></div>
-        <span class="step-label">3. Neural Inference</span>
-      </div>
-      
-      <div class="step-item" id="step-4">
-        <div class="step-node"><i class="fa-solid fa-square-root-variable"></i></div>
-        <span class="step-label">4. LaTeX Result</span>
-      </div>
-    </div>
+      <!-- Hero Title -->
+      <header class="hero-header">
+        <h2 class="hero-title">Handwritten LaTeX Formula Recognition</h2>
+        <p class="hero-subtitle">Upload or draw any handwritten mathematical equation to extract accurate, copy-ready LaTeX code powered by Deep Learning.</p>
+      </header>
 
-    <!-- Main App Grid -->
-    <div class="app-grid">
-
-      <!-- Left Column: Image Upload & Parameters -->
-      <section class="card">
-        <h3 class="card-title">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Upload Handwritten Formula
-        </h3>
-
-        <!-- Drag & Drop Zone -->
-        <div class="dropzone" id="dropzone">
-          <i class="fa-solid fa-image dropzone-icon"></i>
-          <p class="dropzone-text">Drag & drop your handwritten formula image here</p>
-          <p class="dropzone-subtext">or click to browse files (PNG, JPG, WEBP, BMP up to 10MB)</p>
-          <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp, image/bmp">
+      <!-- Pipeline Stepper & Animated Progress Bar -->
+      <div class="stepper-container" id="stepper-container">
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
         </div>
+        
+        <div class="step-item active" id="step-1">
+          <div class="step-node"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <span class="step-label">1. Upload Image</span>
+        </div>
+        
+        <div class="step-item" id="step-2">
+          <div class="step-node"><i class="fa-solid fa-image"></i></div>
+          <span class="step-label">2. Preprocess & Otsu</span>
+        </div>
+        
+        <div class="step-item" id="step-3">
+          <div class="step-node"><i class="fa-solid fa-microchip"></i></div>
+          <span class="step-label">3. Neural Inference</span>
+        </div>
+        
+        <div class="step-item" id="step-4">
+          <div class="step-node"><i class="fa-solid fa-square-root-variable"></i></div>
+          <span class="step-label">4. LaTeX Result</span>
+        </div>
+      </div>
 
-        <!-- Selected Image Preview Box -->
-        <div class="preview-box" id="preview-box">
-          <button class="preview-remove" id="btn-remove-preview" title="Remove selected image">
-            <i class="fa-solid fa-xmark"></i>
+      <!-- Main Interactive Workbench Grid -->
+      <div class="grid">
+        
+        <!-- Left Column: Upload & Options -->
+        <section class="card upload-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-cloud-arrow-up text-primary"></i> Upload Handwritten Formula
+          </h3>
+
+          <!-- Drag & Drop Zone -->
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="file-input" accept="image/*" class="file-input">
+            <div class="dropzone-content">
+              <i class="fa-solid fa-image dropzone-icon"></i>
+              <p class="dropzone-text">Drag & drop your handwritten formula image here</p>
+              <span class="dropzone-subtext">or click to browse files (PNG, JPG, WEBP, BMP up to 10MB)</span>
+            </div>
+          </div>
+
+          <!-- Selected Image Preview Box -->
+          <div class="preview-box" id="preview-box" style="display: none;">
+            <img id="preview-img" src="" alt="Formula Preview" class="preview-img">
+            <button class="btn-remove" id="btn-remove-preview" title="Remove selected image">
+              <i class="fa-solid fa-trash-can"></i> Remove Image
+            </button>
+          </div>
+
+          <!-- Sample Formula Presets -->
+          <div class="preset-section">
+            <span class="preset-label">Try Sample Preset Formula:</span>
+            <div class="preset-buttons">
+              <button class="btn-preset" data-preset="integral">Integral $\int x^2 dx$</button>
+              <button class="btn-preset" data-preset="summation">Summation $\sum_{i=1}^{n} i$</button>
+              <button class="btn-preset" data-preset="fraction">Fraction $\frac{a}{b}$</button>
+            </div>
+          </div>
+
+          <!-- Inference Parameters -->
+          <div class="params-group">
+            <div class="param-field">
+              <label for="decode-method" class="param-label">Decoding Method</label>
+              <select id="decode-method" class="select-custom">
+                <option value="greedy">Greedy Search (Fastest)</option>
+                <option value="beam" selected>Beam Search (High Accuracy)</option>
+              </select>
+            </div>
+
+            <div class="param-field" id="beam-size-container">
+              <div class="slider-header">
+                <label for="beam-size" class="param-label">Beam Width:</label>
+                <span id="beam-val" class="slider-val">5</span>
+              </div>
+              <input type="range" id="beam-size" min="1" max="10" value="5" class="slider-custom">
+            </div>
+          </div>
+
+          <!-- Predict Action Button -->
+          <button class="btn-primary" id="btn-predict">
+            <i class="fa-solid fa-bolt"></i> Recognize Formula
           </button>
-          <img id="preview-img" src="" alt="Handwritten Formula Preview">
-        </div>
+        </section>
 
-        <!-- Sample Formula Presets -->
-        <div class="presets-container">
-          <p class="presets-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Try Sample Preset Formula:</p>
-          <div class="presets-flex">
-            <button class="btn-preset" data-preset="integral">Integral $\int x^2 dx$</button>
-            <button class="btn-preset" data-preset="summation">Summation $\sum_{i=1}^{n} i$</button>
-            <button class="btn-preset" data-preset="fraction">Fraction $\frac{a}{b}$</button>
-          </div>
-        </div>
+        <!-- Right Column: Results & LaTeX Renderer -->
+        <section class="card output-card">
+          <h3 class="card-title">
+            <i class="fa-solid fa-square-root-variable text-accent"></i> Recognized Formula Result
+          </h3>
 
-        <!-- Decoding Controls -->
-        <div class="controls-group">
-          <div class="control-item">
-            <label for="decode-method"><i class="fa-solid fa-sliders"></i> Decoding Method</label>
-            <select id="decode-method" class="select-custom">
-              <option value="beam" selected>Beam Search (High Accuracy)</option>
-              <option value="greedy">Greedy Search (Fastest)</option>
-            </select>
+          <!-- KaTeX Formatted Render Box -->
+          <div class="math-render-container">
+            <div id="math-render-box" class="math-render-box">
+              <span class="placeholder-text">Rendered mathematical formula will appear here...</span>
+            </div>
           </div>
 
-          <div class="control-item" id="beam-size-container">
-            <label for="beam-size"><i class="fa-solid fa-layer-group"></i> Beam Width: <span id="beam-val">5</span></label>
-            <input type="range" id="beam-size" class="slider-custom" min="1" max="10" value="5">
-          </div>
-        </div>
+          <!-- Raw LaTeX Code Output & Interactive Formula Editor -->
+          <div class="raw-latex-container" style="margin-top: 1rem;">
+            <label class="param-label" style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.4rem;">
+              <i class="fa-solid fa-code"></i> Raw LaTeX Code:
+            </label>
+            <div class="raw-latex-box" id="raw-latex-output">
+              \text{Recognized LaTeX code will appear here}
+            </div>
 
-        <!-- Submit Button -->
-        <button class="btn-submit" id="btn-predict">
-          <i class="fa-solid fa-bolt"></i> Recognize Formula
-        </button>
-      </section>
-
-      <!-- Right Column: Recognition Results -->
-      <section class="card">
-        <h3 class="card-title">
-          <i class="fa-solid fa-square-root-variable"></i> Recognized Formula Result
-        </h3>
-
-        <div class="result-display">
-          
-          <!-- Rendered KaTeX Math Box -->
-          <div class="rendered-math-box" id="math-render-box">
-            <span class="placeholder-text">
-              <i class="fa-regular fa-lightbulb"></i> Predicted LaTeX formula will render here in real-time...
-            </span>
-          </div>
-
-          <!-- Raw LaTeX Code View -->
-          <div class="raw-latex-box">
-            <div class="raw-latex-code" id="raw-latex-output">\text{LaTeX output code will appear here}</div>
-          </div>
-
-          <!-- Interactive Editable LaTeX Field -->
-          <div class="editor-group" style="margin-top: 1rem;">
-            <label for="latex-editor-input" class="editor-label" style="font-size: 0.82rem; font-weight: 600; color: var(--text-subtle); margin-bottom: 0.4rem; display: block;">
+            <label for="latex-editor-input" class="param-label" style="display: flex; align-items: center; gap: 0.4rem; margin-top: 1rem; margin-bottom: 0.4rem;">
               <i class="fa-solid fa-pen-to-square"></i> Edit Formula LaTeX Code:
             </label>
             <textarea id="latex-editor-input" class="textarea-custom" rows="2" style="width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--accent-cyan); font-family: var(--font-mono); padding: 0.6rem; font-size: 0.9rem; resize: vertical;" placeholder="Edit formula LaTeX code here..."></textarea>
@@ -189,111 +210,219 @@
             </button>
           </div>
 
+        </section>
+      </div>
+
+      <!-- Step 2: Image Pipeline & Preprocessing Visualizer Card Section -->
+      <section class="card pipeline-card" id="pipeline-card" style="display: none; margin-top: 2rem;">
+        <div class="pipeline-header">
+          <h3 class="card-title" style="margin-bottom: 0;">
+            📷 Image Pipeline & Preprocessing
+          </h3>
+          <span class="badge-active">Otsu Threshold & Line Crop</span>
+        </div>
+
+        <div class="pipeline-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.25rem;">
+          <!-- 1. Raw Uploaded Image -->
+          <div class="pipeline-box" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
+            <h4 class="pipeline-box-title" style="color: var(--accent-cyan); font-size: 0.95rem; margin-bottom: 0.75rem;">1. Raw Input Image</h4>
+            <div class="pipeline-img-wrap" style="height: 160px; display: flex; align-items: center; justify-content: center; background: #000; border-radius: var(--radius-sm); overflow: hidden;">
+              <img id="pipeline-orig-img" src="" alt="Original Upload" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+            </div>
+            <p class="pipeline-meta" id="pipeline-orig-meta" style="font-size: 0.75rem; color: var(--text-subtle); margin-top: 0.6rem; text-align: center;">Dimensions: 897 × 271 px | Format: image/png</p>
+          </div>
+
+          <!-- 2. Otsu Preprocessed Canvas -->
+          <div class="pipeline-box" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem;">
+            <h4 class="pipeline-box-title" style="color: var(--accent-emerald); font-size: 0.95rem; margin-bottom: 0.75rem;">2. Otsu Binarized Tensor Canvas</h4>
+            <div class="pipeline-img-wrap" style="height: 160px; display: flex; align-items: center; justify-content: center; background: #000; border-radius: var(--radius-sm); overflow: hidden;">
+              <img id="pipeline-otsu-img" src="" alt="Otsu Canvas" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+            </div>
+            <p class="pipeline-meta" id="pipeline-meta" style="font-size: 0.75rem; color: var(--text-subtle); margin-top: 0.6rem; text-align: center;">Tensor Shape: [1, 3, 128, 512] | Padded & Normalized for Model Encoder</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 1: SymPy Mathematical Solution Card -->
+      <section class="card solution-card" id="sympy-card" style="display: none; margin-top: 2rem;">
+        <div class="pipeline-header">
+          <h3 class="card-title" style="margin-bottom: 0;">
+            ⚡ SymPy Mathematical Solution
+          </h3>
+          <span class="badge-active" style="background: rgba(16, 185, 129, 0.15); border-color: var(--accent-emerald); color: var(--accent-emerald);">
+            <i class="fa-solid fa-calculator"></i> SymPy Symbolic Engine
+          </span>
+        </div>
+
+        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+          <h4 class="pipeline-box-title" style="color: var(--accent-emerald);">Calculated Exact Symbolic Solution</h4>
+          <div class="rendered-math-box" id="sympy-render-box" style="margin-top: 0.75rem;">
+            <!-- Solved KaTeX math renders here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Matplotlib Function Graph Plot Card -->
+      <section class="card solution-card" id="plot-card" style="display: none; margin-top: 2rem;">
+        <div class="pipeline-header">
+          <h3 class="card-title" style="margin-bottom: 0;">
+            📈 Matplotlib Function Graph & Visualization
+          </h3>
+          <span class="badge-active" style="background: rgba(56, 189, 248, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);">
+            <i class="fa-solid fa-chart-line"></i> Matplotlib Dark-Mode Engine
+          </span>
+        </div>
+
+        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+          <h4 class="pipeline-box-title" style="color: var(--accent-cyan);">Function Curve Plot</h4>
+          <div class="plot-img-wrap" style="margin-top: 0.75rem; background: #0f172a; border-radius: var(--radius-sm); padding: 0.5rem; text-align: center;">
+            <img id="plot-img" src="" alt="Matplotlib Function Plot" style="max-width: 100%; border-radius: var(--radius-sm);">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Gemini AI Concept Explanation Card -->
+      <section class="card solution-card" id="gemini-card" style="display: none; margin-top: 2rem;">
+        <div class="pipeline-header">
+          <h3 class="card-title" style="margin-bottom: 0;">
+            🧠 Gemini AI Concept Explanation & Breakdown
+          </h3>
+          <span class="badge-active" style="background: rgba(99, 102, 241, 0.15); border-color: var(--primary); color: #a5b4fc;">
+            <i class="fa-solid fa-sparkles"></i> Gemini AI Model Active
+          </span>
+        </div>
+
+        <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
+          <h4 class="pipeline-box-title" style="color: #a5b4fc;">Step-by-Step Pedagogical Explanation</h4>
+          <div class="explanation-content" id="explanation-content" style="margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.7; color: var(--text-main);">
+            <!-- Markdown explanation renders here -->
+          </div>
         </div>
       </section>
 
     </div>
 
-    <!-- Step 2: Image Pipeline & Preprocessing Card Section -->
-    <section class="card pipeline-card" id="pipeline-card" style="display: none; margin-top: 2rem;">
-      <div class="pipeline-header">
-        <h3 class="card-title" style="margin-bottom: 0;">
-          🖼️ Step 2: Image Pipeline & Preprocessing
-        </h3>
-        <span class="badge-active"><i class="fa-solid fa-circle-check"></i> Auto Dark-Mode & Otsu Active</span>
+    <!-- Tab Page 2: Recognition History -->
+    <div class="tab-page" id="tab-history">
+      <div class="history-header">
+        <div>
+          <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">Formula Recognition History</h2>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.2rem;">All your previously recognized handwritten equations saved locally.</p>
+        </div>
+        <button class="btn-remove" id="btn-clear-history" style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--accent-rose); color: var(--accent-rose); padding: 0.5rem 1rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">
+          <i class="fa-solid fa-trash-can"></i> Clear History
+        </button>
       </div>
 
-      <div class="pipeline-grid" style="margin-top: 1.25rem;">
-        <!-- Original Uploaded Image -->
-        <div class="pipeline-box">
-          <h4 class="pipeline-box-title">Original Uploaded Image</h4>
-          <div class="pipeline-img-wrap">
-            <img id="pipeline-orig-img" src="" alt="Original Uploaded Image">
-          </div>
-          <p class="pipeline-meta" id="pipeline-orig-meta">
-            Dimensions: 512 × 128 px | Format: image/png
+      <div class="history-grid" id="history-grid">
+        <!-- History items render here via JS -->
+      </div>
+    </div>
+
+    <!-- Tab Page 3: About Project (SIC Presentation) -->
+    <div class="tab-page" id="tab-about-sic">
+      <div class="sic-banner">
+        <h2 class="sic-title">🎓 Handwritten Mathematical Formula Recognition & Solver System</h2>
+        <p class="sic-subtitle">
+          An End-to-End Artificial Intelligence & Computer Vision Project designed for the <strong>Software Innovation Competition (SIC)</strong>. Combines PyTorch Encoder-Decoder Neural Transformers, OpenCV Image Segmentation, SymPy Symbolic Solving, and Gemini AI.
+        </p>
+      </div>
+
+      <div class="sic-grid">
+        <!-- 1. Deep Learning Architecture Card -->
+        <div class="sic-card">
+          <h3 class="sic-card-title"><i class="fa-solid fa-brain"></i> Neural Network Architecture</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+            Uses a hybrid <strong>CRNN + Transformer Decoder</strong> model. The vision encoder extracts multi-scale spatial feature maps from raw handwritten notebook images, projected via 1x1 convolution ($d_{model}=256$) into a 4-layer Transformer Decoder with 8 Multi-Head Attention heads.
           </p>
-        </div>
-
-        <!-- Auto-Inverted & Otsu Normalized Tensor Input -->
-        <div class="pipeline-box">
-          <h4 class="pipeline-box-title">Auto-Inverted & Otsu Normalized Tensor Input</h4>
-          <div class="pipeline-img-wrap">
-            <img id="pipeline-otsu-img" src="" alt="Normalized Tensor Input Canvas">
+          <div class="sic-badge-list">
+            <span class="sic-badge">EfficientNet-B0 Vision Backbone</span>
+            <span class="sic-badge">Sinusoidal Positional Encoding</span>
+            <span class="sic-badge">4-Layer Transformer Decoder</span>
+            <span class="sic-badge">241 Token LaTeX Vocab</span>
           </div>
-          <p class="pipeline-meta" id="pipeline-meta">
-            Tensor Shape: [1, 3, 128, 512] | Padded & Normalized for Model Encoder
+        </div>
+
+        <!-- 2. Image Processing & Line Segmentation Card -->
+        <div class="sic-card">
+          <h3 class="sic-card-title"><i class="fa-solid fa-eye"></i> Preprocessing & OpenCV Segmentation</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+            Features an advanced image pipeline using <strong>Adaptive Gaussian Thresholding</strong> and <strong>Horizontal Projection Profiling (HPP)</strong> to isolate dark ink strokes from notebook ruled lines and segment multi-line stacked equations top-to-bottom.
           </p>
+          <div class="sic-badge-list">
+            <span class="sic-badge">Otsu Binarization</span>
+            <span class="sic-badge">Horizontal Projection Profiling</span>
+            <span class="sic-badge">Tensor Canvas 128x512</span>
+            <span class="sic-badge">Multi-Line Stacked LaTeX</span>
+          </div>
+        </div>
+
+        <!-- 3. SymPy & Matplotlib Engine Card -->
+        <div class="sic-card">
+          <h3 class="sic-card-title"><i class="fa-solid fa-calculator"></i> Mathematical Solver & Plotter</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+            Integrates <strong>SymPy Symbolic Engine</strong> to calculate exact algebraic roots, indefinite integrals, and summations, paired with <strong>Matplotlib</strong> for real-time dark-mode function curve plotting ($x \in [-10, 10]$).
+          </p>
+          <div class="sic-badge-list">
+            <span class="sic-badge">SymPy Symbolic Math</span>
+            <span class="sic-badge">Matplotlib Curve Plotting</span>
+            <span class="sic-badge">Exact Algebraic Roots</span>
+            <span class="sic-badge">Calculus & Summations</span>
+          </div>
+        </div>
+
+        <!-- 4. Gemini AI Explanation Engine Card -->
+        <div class="sic-card">
+          <h3 class="sic-card-title"><i class="fa-solid fa-sparkles"></i> Gemini AI Pedagogical Assistant</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+            Powered by <code>gemini-2.5-flash</code> via the official <code>google-genai</code> SDK to generate step-by-step mathematical intuition, real-world application breakdowns, and conceptual explanations for student learning.
+          </p>
+          <div class="sic-badge-list">
+            <span class="sic-badge">google-genai SDK</span>
+            <span class="sic-badge">gemini-2.5-flash Model</span>
+            <span class="sic-badge">Step-by-Step Derivations</span>
+            <span class="sic-badge">Real-World Intuition</span>
+          </div>
+        </div>
+
+        <!-- 5. Deployment Architecture Card -->
+        <div class="sic-card">
+          <h3 class="sic-card-title"><i class="fa-solid fa-server"></i> Cloud Infrastructure & Deployment</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+            Deployed as a high-performance decoupled architecture: <strong>Vercel Edge Network</strong> hosts the responsive glassmorphism frontend, while <strong>FastAPI + Ngrok HTTPS Tunnel</strong> powers GPU/CPU neural inference.
+          </p>
+          <div class="sic-badge-list">
+            <span class="sic-badge">FastAPI ASGI Server</span>
+            <span class="sic-badge">Vercel Global Edge CDN</span>
+            <span class="sic-badge">Ngrok Secure HTTPS Tunnel</span>
+            <span class="sic-badge">REST API Endpoints</span>
+          </div>
+        </div>
+
+        <!-- 6. SIC Competition Highlights Card -->
+        <div class="sic-card">
+          <h3 class="sic-card-title"><i class="fa-solid fa-award"></i> SIC Presentation Key Highlights</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+            Built with modern web standards (Vanilla CSS Tokens, KaTeX Math rendering, KaTeX Live LaTeX Editor), low latency inference, and multi-modal problem solving designed for educational innovation.
+          </p>
+          <div class="sic-badge-list">
+            <span class="sic-badge">KaTeX Real-Time Rendering</span>
+            <span class="sic-badge">Interactive LaTeX Editor</span>
+            <span class="sic-badge">Beam Search (k=5) Decoding</span>
+            <span class="sic-badge">Zero Dependency UI</span>
+          </div>
         </div>
       </div>
-    </section>
-
-    <!-- Section 1: SymPy Mathematical Solution Card -->
-    <section class="card solution-card" id="sympy-card" style="display: none; margin-top: 2rem;">
-      <div class="pipeline-header">
-        <h3 class="card-title" style="margin-bottom: 0;">
-          ⚡ SymPy Mathematical Solution
-        </h3>
-        <span class="badge-active" style="background: rgba(16, 185, 129, 0.15); border-color: var(--accent-emerald); color: var(--accent-emerald);">
-          <i class="fa-solid fa-calculator"></i> SymPy Symbolic Engine
-        </span>
-      </div>
-
-      <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
-        <h4 class="pipeline-box-title" style="color: var(--accent-emerald);">Calculated Exact Symbolic Solution</h4>
-        <div class="rendered-math-box" id="sympy-render-box" style="margin-top: 0.75rem;">
-          <!-- Solved KaTeX math renders here -->
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 2: Matplotlib Function Graph Plot Card -->
-    <section class="card solution-card" id="plot-card" style="display: none; margin-top: 2rem;">
-      <div class="pipeline-header">
-        <h3 class="card-title" style="margin-bottom: 0;">
-          📈 Matplotlib Function Graph & Visualization
-        </h3>
-        <span class="badge-active" style="background: rgba(56, 189, 248, 0.15); border-color: var(--accent-cyan); color: var(--accent-cyan);">
-          <i class="fa-solid fa-chart-line"></i> Matplotlib Dark-Mode Engine
-        </span>
-      </div>
-
-      <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
-        <h4 class="pipeline-box-title" style="color: var(--accent-cyan);">Function Curve Plot</h4>
-        <div class="plot-img-wrap" style="margin-top: 0.75rem; background: #0f172a; border-radius: var(--radius-sm); padding: 0.5rem; text-align: center;">
-          <img id="plot-img" src="" alt="Matplotlib Function Plot" style="max-width: 100%; border-radius: var(--radius-sm);">
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 3: Gemini AI Concept Explanation Card -->
-    <section class="card solution-card" id="gemini-card" style="display: none; margin-top: 2rem;">
-      <div class="pipeline-header">
-        <h3 class="card-title" style="margin-bottom: 0;">
-          🧠 Gemini AI Concept Explanation & Breakdown
-        </h3>
-        <span class="badge-active" style="background: rgba(99, 102, 241, 0.15); border-color: var(--primary); color: #a5b4fc;">
-          <i class="fa-solid fa-sparkles"></i> Gemini AI Model Active
-        </span>
-      </div>
-
-      <div class="solution-box" style="background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem;">
-        <h4 class="pipeline-box-title" style="color: #a5b4fc;">Step-by-Step Pedagogical Explanation</h4>
-        <div class="explanation-content" id="explanation-content" style="margin-top: 0.75rem; font-size: 0.95rem; line-height: 1.7; color: var(--text-main);">
-          <!-- Markdown explanation renders here -->
-        </div>
-      </div>
-    </section>
+    </div>
 
   </main>
 
-  <!-- Toast Notification -->
+  <!-- Toast Notification Container -->
   <div class="toast" id="toast">
-    <i class="fa-solid fa-circle-check"></i>
-    <span id="toast-msg">Copied to clipboard!</span>
+    <span id="toast-msg">Notification Message</span>
   </div>
 
-  <!-- App Script -->
+  <!-- Application JS Script -->
   <script src="/static/js/app.js"></script>
 </body>
 </html>
